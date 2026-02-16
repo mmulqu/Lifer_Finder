@@ -87,6 +87,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 .nearby-chip .chip-icon{font-size:13px;flex-shrink:0}
 .nearby-chip .chip-type{font-size:10px;color:var(--ink-light);margin-left:2px}
 .nearby-loading{font-size:12px;color:var(--ink-light);padding:4px 0;font-style:italic}
+
+/* Results bar */
 .results-bar{position:fixed;bottom:0;left:0;right:0;z-index:1200;display:none}
 .results-bar.visible{display:flex;flex-direction:column}
 .results-summary{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--ink);color:var(--parchment);cursor:pointer;user-select:none;position:relative}
@@ -96,18 +98,46 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 .results-summary .chevron.up{transform:rotate(180deg)}
 .close-results{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--parchment);font-size:18px;cursor:pointer;opacity:0.4;padding:4px}
 .close-results:hover{opacity:1}
-.results-list{background:var(--parchment);max-height:55dvh;overflow-y:auto;display:none;border-top:2px solid var(--amber)}
+
+/* Season filter strip */
+.results-filters{display:flex;align-items:center;gap:8px;padding:8px 20px;background:#fff;border-top:2px solid var(--amber);border-bottom:1px solid rgba(0,0,0,0.06)}
+.season-toggle{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:14px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink-light);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.season-toggle:hover{border-color:var(--moss)}
+.season-toggle.active{background:var(--moss);color:#fff;border-color:var(--moss)}
+.season-toggle .dot{width:7px;height:7px;border-radius:50%;background:#aaa;transition:background 0.15s}
+.season-toggle.active .dot{background:#7dff7d}
+.filter-info{font-size:11px;color:var(--ink-light);margin-left:auto}
+
+.results-list{background:var(--parchment);max-height:55dvh;overflow-y:auto;display:none}
 .results-list.expanded{display:block}
-.species-card{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;transition:background 0.1s;text-decoration:none;color:inherit}
+
+/* Species card */
+.species-card{display:flex;align-items:flex-start;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;transition:background 0.1s;text-decoration:none;color:inherit}
 .species-card:hover{background:var(--amber-pale)}
-.species-card img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#e8e2d8}
-.species-card .placeholder-thumb{width:44px;height:44px;border-radius:8px;background:#e8e2d8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.species-card.off-season{opacity:0.45}
+.species-card img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#e8e2d8;margin-top:2px}
+.species-card .placeholder-thumb{width:44px;height:44px;border-radius:8px;background:#e8e2d8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;margin-top:2px}
 .species-info{flex:1;min-width:0}
 .species-info .common{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .species-info .scientific{font-size:12px;font-style:italic;color:var(--ink-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.species-info .obs-count{font-size:11px;color:var(--moss);font-weight:500;margin-top:1px}
-.species-card .fly-to{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--moss-pale);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s}
+.species-info .meta-row{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.species-info .obs-count{font-size:11px;color:var(--moss);font-weight:500}
+.season-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:1px 7px;border-radius:8px;white-space:nowrap}
+.season-badge.in{background:#ddf5dd;color:#2d7a2d}
+.season-badge.off{background:#f5e5dd;color:#a05a30}
+.season-badge.unknown{background:#eee;color:#999}
+
+/* Sparkline */
+.sparkline-wrap{margin-top:4px;display:flex;align-items:flex-end;gap:0}
+.sparkline-wrap svg{display:block}
+.sparkline-months{display:flex;margin-top:1px}
+.sparkline-months span{font-size:7px;color:var(--ink-light);text-align:center;line-height:1}
+.sparkline-months span.now{color:var(--moss);font-weight:700}
+
+.species-card .fly-to{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--moss-pale);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s;margin-top:2px}
 .species-card:hover .fly-to{background:var(--moss);color:#fff}
+
+/* Loading */
 .loading-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(245,240,232,0.88);flex-direction:column;align-items:center;justify-content:center;gap:16px}
 .loading-overlay.visible{display:flex}
 .spinner{width:40px;height:40px;border:3px solid #d4cdc1;border-top-color:var(--moss);border-radius:50%;animation:spin 0.8s linear infinite}
@@ -189,6 +219,10 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
     <div class="chevron" id="chevron">▲</div>
     <button class="close-results" onclick="event.stopPropagation();clearResults()">✕</button>
   </div>
+  <div class="results-filters" id="resultsFilters" style="display:none;">
+    <button class="season-toggle active" id="seasonToggle" onclick="toggleSeason()"><span class="dot"></span> In season</button>
+    <span class="filter-info" id="filterInfo"></span>
+  </div>
   <div class="results-list" id="resultsList"></div>
 </div>
 
@@ -198,6 +232,8 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 const TREES_WORKER="https://inat-trees-worker.intrinsic3141.workers.dev";
 const INAT_PROXY="https://inat-api-proxy.intrinsic3141.workers.dev";
 const LIFE_TAXON_ID=48460;
+const MONTH_LABELS=["J","F","M","A","M","J","J","A","S","O","N","D"];
+const CUR_MONTH=new Date().getMonth(); // 0-11
 
 let map,searchCircle,placeLayer,obsCluster;
 let mode="radius";
@@ -205,6 +241,10 @@ let selectedPlaceId=null,selectedPlaceName="";
 let selectedTaxonId=null,selectedTaxonName="";
 let newForMeSpecies=[];
 let obsByTaxon=new Map();
+let allFetchedObs=[];
+let seasonMap=new Map(); // taxon_id → [12 month counts]
+let inSeasonSet=new Set();
+let seasonFilterOn=true;
 
 // ── helpers ──
 async function inatGet(ep,params={}){
@@ -249,89 +289,101 @@ async function fetchObservationsForTaxa(taxonIds,areaP,d1,cb){
   return allObs;
 }
 
-// ── PLACES NEARBY ──
-// Fetches /v1/places/nearby with small bbox around coords.
-// Filters:
-//   standard: skip admin_level <= 10 (continents, countries, states)
-//   community: skip bbox_area > 10 (huge community places)
-async function fetchNearbyPlaces(lat,lng){
-  const d=0.15;
-  const data=await inatGet("/places/nearby",{
-    nelat:(lat+d).toFixed(4),nelng:(lng+d).toFixed(4),
-    swlat:(lat-d).toFixed(4),swlng:(lng-d).toFixed(4)
-  });
-  const places=[],seen=new Set();
-  for(const p of(data?.results?.standard||[])){
-    if(seen.has(p.id))continue;
-    const al=p.admin_level;
-    if(al!==null&&al!==undefined&&al<=10)continue;
-    if(p.bbox_area&&p.bbox_area>25)continue;
-    seen.add(p.id);places.push({...p,_src:"std"});
+// ── SEASONALITY ──
+// Build month-of-year histograms from fetched observations (zero additional API calls)
+function buildSeasonData(observations) {
+  seasonMap = new Map();
+  for (const obs of observations) {
+    if (!obs.observed_on || !obs.taxon_id) continue;
+    const m = new Date(obs.observed_on).getMonth(); // 0-11
+    if (!seasonMap.has(obs.taxon_id)) seasonMap.set(obs.taxon_id, new Array(12).fill(0));
+    seasonMap.get(obs.taxon_id)[m]++;
   }
-  for(const p of(data?.results?.community||[])){
-    if(seen.has(p.id))continue;
-    if(p.bbox_area&&p.bbox_area>10)continue;
-    seen.add(p.id);places.push({...p,_src:"com"});
+  // Determine in-season: has observations in current month ± 1
+  inSeasonSet = new Set();
+  const adj = [(CUR_MONTH + 11) % 12, CUR_MONTH, (CUR_MONTH + 1) % 12];
+  for (const [tid, months] of seasonMap) {
+    if (adj.some(m => months[m] > 0)) inSeasonSet.add(tid);
   }
-  places.sort((a,b)=>{
-    if(a._src!==b._src)return a._src==="com"?-1:1;
-    return(a.bbox_area||999)-(b.bbox_area||999);
-  });
-  return places.slice(0,12);
 }
 
+function isInSeason(taxonId) {
+  if (!seasonMap.has(taxonId)) return null; // unknown — no obs data
+  return inSeasonSet.has(taxonId);
+}
+
+function peakMonths(taxonId) {
+  const data = seasonMap.get(taxonId);
+  if (!data) return "";
+  const max = Math.max(...data);
+  if (max === 0) return "";
+  const peaks = [];
+  for (let i = 0; i < 12; i++) {
+    if (data[i] >= max * 0.6) peaks.push(MONTH_LABELS[i]);
+  }
+  return peaks.join("–");
+}
+
+function makeSparkline(taxonId) {
+  const data = seasonMap.get(taxonId);
+  if (!data) return '<span style="font-size:10px;color:var(--ink-light);font-style:italic">no season data</span>';
+  const max = Math.max(...data, 1);
+  const bw = 5, gap = 1, h = 20;
+  const w = 12 * (bw + gap) - gap;
+  let bars = '';
+  for (let i = 0; i < 12; i++) {
+    const bh = Math.max((data[i] / max) * h, data[i] > 0 ? 2 : 0.5);
+    const x = i * (bw + gap);
+    const isCur = i === CUR_MONTH;
+    const isAdj = i === (CUR_MONTH + 11) % 12 || i === (CUR_MONTH + 1) % 12;
+    let fill, opacity;
+    if (isCur) { fill = "#4a7c59"; opacity = 1; }
+    else if (isAdj) { fill = "#4a7c59"; opacity = 0.4; }
+    else { fill = "#c97d3a"; opacity = 0.35; }
+    bars += `<rect x="${x}" y="${h-bh}" width="${bw}" height="${bh}" fill="${fill}" opacity="${opacity}" rx="1"/>`;
+  }
+  // Current month indicator triangle
+  const cx = CUR_MONTH * (bw + gap) + bw / 2;
+  bars += `<polygon points="${cx-2.5},${h+3} ${cx+2.5},${h+3} ${cx},${h+0.5}" fill="#4a7c59"/>`;
+  let months = '';
+  for (let i = 0; i < 12; i++) {
+    const isCur = i === CUR_MONTH;
+    months += `<span style="width:${bw + gap}px;${isCur ? 'color:var(--moss);font-weight:700' : ''}">${MONTH_LABELS[i]}</span>`;
+  }
+  return `<div class="sparkline-wrap"><svg width="${w}" height="${h+5}" viewBox="0 0 ${w} ${h+5}">${bars}</svg></div><div class="sparkline-months" style="width:${w}px">${months}</div>`;
+}
+
+function seasonBadgeHtml(taxonId) {
+  const s = isInSeason(taxonId);
+  if (s === null) return '<span class="season-badge unknown">? season</span>';
+  if (s) {
+    const pk = peakMonths(taxonId);
+    return `<span class="season-badge in">● now${pk ? ' · peak ' + pk : ''}</span>`;
+  }
+  const pk = peakMonths(taxonId);
+  return `<span class="season-badge off">○ off season${pk ? ' · peak ' + pk : ''}</span>`;
+}
+
+// ── PLACES NEARBY ──
+async function fetchNearbyPlaces(lat,lng){
+  const d=0.15;
+  const data=await inatGet("/places/nearby",{nelat:(lat+d).toFixed(4),nelng:(lng+d).toFixed(4),swlat:(lat-d).toFixed(4),swlng:(lng-d).toFixed(4)});
+  const places=[],seen=new Set();
+  for(const p of(data?.results?.standard||[])){if(seen.has(p.id))continue;const al=p.admin_level;if(al!==null&&al!==undefined&&al<=10)continue;if(p.bbox_area&&p.bbox_area>25)continue;seen.add(p.id);places.push({...p,_src:"std"})}
+  for(const p of(data?.results?.community||[])){if(seen.has(p.id))continue;if(p.bbox_area&&p.bbox_area>10)continue;seen.add(p.id);places.push({...p,_src:"com"})}
+  places.sort((a,b)=>{if(a._src!==b._src)return a._src==="com"?-1:1;return(a.bbox_area||999)-(b.bbox_area||999)});
+  return places.slice(0,12);
+}
 let nearbyDebounce=null;
 function triggerNearbyFetch(lat,lng){
   clearTimeout(nearbyDebounce);
-  nearbyDebounce=setTimeout(async()=>{
-    const sec=document.getElementById("nearbySection");
-    const chips=document.getElementById("nearbyChips");
-    chips.innerHTML='<div class="nearby-loading">Finding nearby places…</div>';
-    sec.style.display="block";
-    try{
-      const places=await fetchNearbyPlaces(lat,lng);
-      renderNearbyChips(places);
-    }catch(e){console.error(e);chips.innerHTML='<div class="nearby-loading">Could not load nearby places</div>'}
-  },400);
+  nearbyDebounce=setTimeout(async()=>{const sec=document.getElementById("nearbySection");const chips=document.getElementById("nearbyChips");chips.innerHTML='<div class="nearby-loading">Finding nearby places…</div>';sec.style.display="block";try{renderNearbyChips(await fetchNearbyPlaces(lat,lng))}catch(e){console.error(e);chips.innerHTML='<div class="nearby-loading">Could not load nearby places</div>'}},400);
 }
-
-function chipIcon(p){
-  const icons={100:"🌲",20:"🏔",13:"🏝",9:"🏛",7:"🏘",1000:"🏘"};
-  if(p._src==="com")return icons[p.place_type]||"🌿";
-  if(p.admin_level===20)return"🏛";
-  return"📍";
-}
-function chipType(p){
-  if(p.place_type_name)return p.place_type_name;
-  if(p._src==="std"&&p.admin_level===20)return"County";
-  return p._src==="com"?"Community":"";
-}
-function renderNearbyChips(places){
-  const el=document.getElementById("nearbyChips");
-  if(!places||!places.length){el.innerHTML='<div class="nearby-loading">No nearby places found</div>';return}
-  el.innerHTML="";
-  for(const p of places){
-    const b=document.createElement("button");b.className="nearby-chip";
-    const t=chipType(p);
-    b.innerHTML=`<span class="chip-icon">${chipIcon(p)}</span>${p.name}${t?` <span class="chip-type">${t}</span>`:""}`;
-    b.onclick=()=>selectNearbyPlace(p);
-    el.appendChild(b);
-  }
-}
-function selectNearbyPlace(p){
-  setMode("place",null);
-  selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;
-  const el=document.getElementById("selectedPlace");
-  el.style.display="flex";el.className="badge badge-place";
-  el.innerHTML=`<span>${chipIcon(p)} ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
-  showPlaceBoundary(p);
-}
-function showPlaceBoundary(p){
-  if(placeLayer){map.removeLayer(placeLayer);placeLayer=null}
-  const geo=p.geometry_geojson||p.bounding_box_geojson;
-  if(!geo)return;
-  try{placeLayer=L.geoJSON(geo,{style:{color:"#4a7c59",fillColor:"#4a7c59",fillOpacity:0.06,weight:2,dashArray:"6 4"}}).addTo(map);map.fitBounds(placeLayer.getBounds(),{padding:[40,40]})}catch(e){}
-}
+function chipIcon(p){const icons={100:"🌲",20:"🏔",13:"🏝",9:"🏛",7:"🏘",1000:"🏘"};if(p._src==="com")return icons[p.place_type]||"🌿";if(p.admin_level===20)return"🏛";return"📍"}
+function chipType(p){if(p.place_type_name)return p.place_type_name;if(p._src==="std"&&p.admin_level===20)return"County";return p._src==="com"?"Community":""}
+function renderNearbyChips(places){const el=document.getElementById("nearbyChips");if(!places||!places.length){el.innerHTML='<div class="nearby-loading">No nearby places found</div>';return}el.innerHTML="";for(const p of places){const b=document.createElement("button");b.className="nearby-chip";const t=chipType(p);b.innerHTML=`<span class="chip-icon">${chipIcon(p)}</span>${p.name}${t?` <span class="chip-type">${t}</span>`:""}`;b.onclick=()=>selectNearbyPlace(p);el.appendChild(b)}}
+function selectNearbyPlace(p){setMode("place",null);selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;const el=document.getElementById("selectedPlace");el.style.display="flex";el.className="badge badge-place";el.innerHTML=`<span>${chipIcon(p)} ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;showPlaceBoundary(p)}
+function showPlaceBoundary(p){if(placeLayer){map.removeLayer(placeLayer);placeLayer=null}const geo=p.geometry_geojson||p.bounding_box_geojson;if(!geo)return;try{placeLayer=L.geoJSON(geo,{style:{color:"#4a7c59",fillColor:"#4a7c59",fillOpacity:0.06,weight:2,dashArray:"6 4"}}).addTo(map);map.fitBounds(placeLayer.getBounds(),{padding:[40,40]})}catch(e){}}
 
 // ── MAP ──
 map=L.map("map",{center:[42.36,-72.52],zoom:10,zoomControl:false});
@@ -346,12 +398,10 @@ map.on("click",e=>{
   if(mode!=="radius")return;
   document.getElementById("lat").value=e.latlng.lat.toFixed(5);
   document.getElementById("lng").value=e.latlng.lng.toFixed(5);
-  drawCircle();
-  triggerNearbyFetch(e.latlng.lat,e.latlng.lng);
+  drawCircle();triggerNearbyFetch(e.latlng.lat,e.latlng.lng);
   document.getElementById("tapHint").classList.remove("visible");
 });
 document.getElementById("radius").addEventListener("change",drawCircle);
-
 function drawCircle(){
   if(searchCircle)map.removeLayer(searchCircle);
   const lat=parseFloat(document.getElementById("lat").value),lng=parseFloat(document.getElementById("lng").value),r=parseFloat(document.getElementById("radius").value)*1000;
@@ -363,70 +413,71 @@ function drawCircle(){
 const TC={Aves:"#e05252",Mammalia:"#d97b28",Reptilia:"#7aba4f",Amphibia:"#3bb3a0",Actinopterygii:"#4a90d9",Insecta:"#d4a024",Arachnida:"#9b59b6",Mollusca:"#8e6d4a",Plantae:"#3a9945",Fungi:"#c0392b",Chromista:"#16a085"};
 const TE={Aves:"🐦",Mammalia:"🦊",Reptilia:"🦎",Amphibia:"🐸",Actinopterygii:"🐟",Insecta:"🪲",Arachnida:"🕷",Mollusca:"🐌",Plantae:"🌿",Fungi:"🍄",Animalia:"🐾",Chromista:"🔬"};
 
-function addObsToMap(obs){
-  obsCluster.clearLayers();obsByTaxon=new Map();
-  for(const o of obs){
-    if(!obsByTaxon.has(o.taxon_id))obsByTaxon.set(o.taxon_id,[]);
-    obsByTaxon.get(o.taxon_id).push(o);
-    const col=TC[o.iconic_taxon]||"#c97d3a";
-    const icon=L.divIcon({className:"",html:`<div class="obs-marker" style="background:${col}"></div>`,iconSize:[12,12],iconAnchor:[6,6]});
-    const m=L.marker([o.lat,o.lng],{icon});
-    const ph=o.photo_url?`<img src="${o.photo_url}" alt="${o.common_name}" onerror="this.style.display='none'">`:"";
-    const ds=o.observed_on?new Date(o.observed_on).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}):"";
-    m.bindPopup(`<div class="obs-popup">${ph}<div class="obs-meta"><div class="obs-common">${o.common_name}</div><div class="obs-sci">${o.scientific_name}</div>${ds?`<div class="obs-date">📅 ${ds}</div>`:""}<div class="obs-user">📷 ${o.user_login}</div></div><a class="obs-link" href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">View on iNaturalist →</a></div>`,{maxWidth:260,minWidth:240});
-    obsCluster.addLayer(m);
-  }
-  const b=document.getElementById("mapBadge");b.textContent=`🗺 ${obs.length.toLocaleString()} observations mapped`;b.classList.add("visible");
+function buildMarkerForObs(o) {
+  const col = TC[o.iconic_taxon] || "#c97d3a";
+  const icon = L.divIcon({ className: "", html: `<div class="obs-marker" style="background:${col}"></div>`, iconSize: [12, 12], iconAnchor: [6, 6] });
+  const m = L.marker([o.lat, o.lng], { icon });
+  const ph = o.photo_url ? `<img src="${o.photo_url}" alt="${o.common_name}" onerror="this.style.display='none'">` : "";
+  const ds = o.observed_on ? new Date(o.observed_on).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "";
+  m.bindPopup(`<div class="obs-popup">${ph}<div class="obs-meta"><div class="obs-common">${o.common_name}</div><div class="obs-sci">${o.scientific_name}</div>${ds ? `<div class="obs-date">📅 ${ds}</div>` : ""}<div class="obs-user">📷 ${o.user_login}</div></div><a class="obs-link" href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">View on iNaturalist →</a></div>`, { maxWidth: 260, minWidth: 240 });
+  return m;
 }
-function flyToTaxon(tid){
-  const o=obsByTaxon.get(tid);if(!o||!o.length)return;
-  if(o.length===1){map.setView([o[0].lat,o[0].lng],15);return}
-  map.fitBounds(L.latLngBounds(o.map(x=>[x.lat,x.lng])),{padding:[60,60],maxZoom:15});
+
+function addObsToMap(obs, filterSeason) {
+  obsCluster.clearLayers();
+  obsByTaxon = new Map();
+  let mapped = 0;
+  for (const o of obs) {
+    if (!obsByTaxon.has(o.taxon_id)) obsByTaxon.set(o.taxon_id, []);
+    obsByTaxon.get(o.taxon_id).push(o);
+    // Filter by season if toggle is on
+    if (filterSeason) {
+      const s = isInSeason(o.taxon_id);
+      if (s === false) continue; // skip confirmed off-season
+    }
+    obsCluster.addLayer(buildMarkerForObs(o));
+    mapped++;
+  }
+  const badge = document.getElementById("mapBadge");
+  badge.textContent = `🗺 ${mapped.toLocaleString()} observations mapped${filterSeason ? ' (in season)' : ''}`;
+  badge.classList.add("visible");
+}
+
+function rebuildMap() {
+  addObsToMap(allFetchedObs, seasonFilterOn);
+}
+
+function flyToTaxon(tid) {
+  const o = obsByTaxon.get(tid); if (!o || !o.length) return;
+  if (o.length === 1) { map.setView([o[0].lat, o[0].lng], 15); return; }
+  map.fitBounds(L.latLngBounds(o.map(x => [x.lat, x.lng])), { padding: [60, 60], maxZoom: 15 });
+}
+
+// ── SEASON TOGGLE ──
+function toggleSeason() {
+  seasonFilterOn = !seasonFilterOn;
+  const btn = document.getElementById("seasonToggle");
+  btn.classList.toggle("active", seasonFilterOn);
+  rebuildMap();
+  updateResultsList();
 }
 
 // ── SHEET ──
 function openSheet(){document.getElementById("sheet").classList.add("open");document.getElementById("sheetBackdrop").classList.add("open");if(mode==="radius"&&!document.getElementById("lat").value)document.getElementById("tapHint").classList.add("visible")}
 function closeSheet(){document.getElementById("sheet").classList.remove("open");document.getElementById("sheetBackdrop").classList.remove("open");document.getElementById("tapHint").classList.remove("visible")}
-function setMode(m,btn){
-  mode=m;document.querySelectorAll(".mode-toggle button").forEach(b=>b.classList.remove("active"));
-  (btn||document.querySelector(`[data-mode="${m}"]`))?.classList.add("active");
-  document.getElementById("radiusFields").style.display=m==="radius"?"block":"none";
-  document.getElementById("placeFields").style.display=m==="place"?"block":"none";
-}
-function useMyLocation(){
-  if(!navigator.geolocation)return alert("Geolocation not available");
-  navigator.geolocation.getCurrentPosition(p=>{
-    document.getElementById("lat").value=p.coords.latitude.toFixed(5);
-    document.getElementById("lng").value=p.coords.longitude.toFixed(5);
-    map.setView([p.coords.latitude,p.coords.longitude],12);drawCircle();
-    triggerNearbyFetch(p.coords.latitude,p.coords.longitude);
-  },()=>alert("Could not get location"),{enableHighAccuracy:true});
-}
+function setMode(m,btn){mode=m;document.querySelectorAll(".mode-toggle button").forEach(b=>b.classList.remove("active"));(btn||document.querySelector(`[data-mode="${m}"]`))?.classList.add("active");document.getElementById("radiusFields").style.display=m==="radius"?"block":"none";document.getElementById("placeFields").style.display=m==="place"?"block":"none"}
+function useMyLocation(){if(!navigator.geolocation)return alert("Geolocation not available");navigator.geolocation.getCurrentPosition(p=>{document.getElementById("lat").value=p.coords.latitude.toFixed(5);document.getElementById("lng").value=p.coords.longitude.toFixed(5);map.setView([p.coords.latitude,p.coords.longitude],12);drawCircle();triggerNearbyFetch(p.coords.latitude,p.coords.longitude)},()=>alert("Could not get location"),{enableHighAccuracy:true})}
 
-// ── AUTOCOMPLETE PLACES ──
+// ── AUTOCOMPLETE ──
 let plT;
 document.getElementById("placeSearch").addEventListener("input",e=>{clearTimeout(plT);const q=e.target.value.trim();if(q.length<2){document.getElementById("placeResults").classList.remove("visible");return}plT=setTimeout(()=>doSP(q),300)});
 async function doSP(q){try{const d=await inatGet("/places/autocomplete",{q,per_page:8});const l=document.getElementById("placeResults");l.innerHTML="";(d.results||[]).forEach(p=>{const div=document.createElement("div");div.className="ac-item";div.innerHTML=`<div><div class="ac-name">${p.display_name||p.name}</div>${p.place_type_name?`<div class="ac-sub">${p.place_type_name}</div>`:""}</div>`;div.onclick=()=>selectPlace(p);l.appendChild(div)});l.classList.toggle("visible",(d.results||[]).length>0)}catch(e){console.error(e)}}
-function selectPlace(p){
-  selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;
-  document.getElementById("placeSearch").value="";document.getElementById("placeResults").classList.remove("visible");
-  const el=document.getElementById("selectedPlace");el.style.display="flex";el.className="badge badge-place";
-  el.innerHTML=`<span>📍 ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
-  showPlaceBoundary(p);
-}
+function selectPlace(p){selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;document.getElementById("placeSearch").value="";document.getElementById("placeResults").classList.remove("visible");const el=document.getElementById("selectedPlace");el.style.display="flex";el.className="badge badge-place";el.innerHTML=`<span>📍 ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;showPlaceBoundary(p)}
 function clearPlace(){selectedPlaceId=null;selectedPlaceName="";document.getElementById("selectedPlace").style.display="none";if(placeLayer){map.removeLayer(placeLayer);placeLayer=null}}
-
-// ── AUTOCOMPLETE TAXA ──
 let txT;
 document.getElementById("taxonSearch").addEventListener("input",e=>{clearTimeout(txT);const q=e.target.value.trim();if(q.length<2){document.getElementById("taxonResults").classList.remove("visible");return}txT=setTimeout(()=>doST(q),300)});
 async function doST(q){try{const d=await inatGet("/taxa/autocomplete",{q,per_page:8});const l=document.getElementById("taxonResults");l.innerHTML="";(d.results||[]).forEach(t=>{const th=t.default_photo?.square_url||"";const div=document.createElement("div");div.className="ac-item";div.innerHTML=`${th?`<img src="${th}">`:"" }<div><div class="ac-name">${t.preferred_common_name||t.name}</div><div class="ac-sub">${t.name} · ${t.rank}</div></div>`;div.onclick=()=>selectTaxon(t);l.appendChild(div)});l.classList.toggle("visible",(d.results||[]).length>0)}catch(e){console.error(e)}}
-function selectTaxon(t){
-  selectedTaxonId=t.id;selectedTaxonName=t.preferred_common_name||t.name;
-  document.getElementById("taxonSearch").value="";document.getElementById("taxonResults").classList.remove("visible");
-  const el=document.getElementById("selectedTaxon");el.style.display="flex";el.className="badge badge-taxon";
-  const th=t.default_photo?.square_url||"";
-  el.innerHTML=`${th?`<img src="${th}">`:"" }<span>${selectedTaxonName} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`;
-}
+function selectTaxon(t){selectedTaxonId=t.id;selectedTaxonName=t.preferred_common_name||t.name;document.getElementById("taxonSearch").value="";document.getElementById("taxonResults").classList.remove("visible");const el=document.getElementById("selectedTaxon");el.style.display="flex";el.className="badge badge-taxon";const th=t.default_photo?.square_url||"";el.innerHTML=`${th?`<img src="${th}">`:"" }<span>${selectedTaxonName} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`}
 function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElementById("selectedTaxon").style.display="none"}
 
 // ── SEARCH ──
@@ -434,12 +485,13 @@ async function runSearch(){
   const username=document.getElementById("username").value.trim();
   if(!username)return alert("Enter your iNaturalist username");
   const usePlace=selectedPlaceId!=null;
-  const useRadius=mode==="radius"&&!usePlace;
-  if(useRadius&&(!document.getElementById("lat").value||!document.getElementById("lng").value))return alert("Set a location on the map or use GPS");
+  if(mode==="radius"&&!usePlace&&(!document.getElementById("lat").value||!document.getElementById("lng").value))return alert("Set a location on the map or use GPS");
   if(mode==="place"&&!usePlace)return alert("Select an iNaturalist place");
   closeSheet();
   const taxonId=selectedTaxonId||LIFE_TAXON_ID;
   const d1=getDateFilter();
+  seasonFilterOn = true;
+  document.getElementById("seasonToggle").classList.add("active");
   try{
     showLoading(`Fetching your ${selectedTaxonName||""} life list…`);
     const uids=await fetchUserSpeciesIds(username,taxonId);
@@ -450,36 +502,89 @@ async function runSearch(){
     if(usePlace){ap.place_id=selectedPlaceId}else{ap.lat=document.getElementById("lat").value;ap.lng=document.getElementById("lng").value;ap.radius=document.getElementById("radius").value}
     const ad=await fetchAreaSpeciesCounts(ap,(l,t)=>showLoading(`Area species: ${l.toLocaleString()} / ${t.toLocaleString()}…`));
     newForMeSpecies=ad.results.filter(r=>!uset.has(r.taxon.id)).sort((a,b)=>b.count-a.count);
-    displayResults(uset.size,ad.results.length);
+
+    // Fetch observations
     const topIds=newForMeSpecies.slice(0,200).map(s=>s.taxon.id);
     if(topIds.length>0){
       showLoading(`Mapping observations for ${topIds.length} species…`);
       const op={};
       if(usePlace){op.place_id=selectedPlaceId}else{op.lat=document.getElementById("lat").value;op.lng=document.getElementById("lng").value;op.radius=document.getElementById("radius").value}
-      const obs=await fetchObservationsForTaxa(topIds,op,d1,(c,cd,ct)=>showLoading(`Loading observations: ${c.toLocaleString()} (batch ${cd}/${ct})…`));
-      addObsToMap(obs);
+      allFetchedObs=await fetchObservationsForTaxa(topIds,op,d1,(c,cd,ct)=>showLoading(`Loading observations: ${c.toLocaleString()} (batch ${cd}/${ct})…`));
+
+      // Build seasonality from observations
+      showLoading("Analyzing seasonality…");
+      buildSeasonData(allFetchedObs);
+
+      // Sort: in-season first, then by obs count
+      newForMeSpecies.sort((a,b)=>{
+        const sa=isInSeason(a.taxon.id), sb=isInSeason(b.taxon.id);
+        // in-season (true/null) before off-season (false)
+        if(sa!==false && sb===false) return -1;
+        if(sa===false && sb!==false) return 1;
+        return b.count-a.count;
+      });
+
+      addObsToMap(allFetchedObs, true);
+    } else {
+      allFetchedObs = [];
+      buildSeasonData([]);
     }
+
+    displayResults(uset.size,ad.results.length);
   }catch(e){console.error(e);alert("Error: "+e.message)}finally{hideLoading()}
 }
 
 // ── RESULTS ──
 function displayResults(uc,at){
-  document.getElementById("resultCount").textContent=newForMeSpecies.length.toLocaleString();
-  document.getElementById("resultLabel").innerHTML=`species here new for you<br><span style="opacity:0.5;font-size:11px">${at.toLocaleString()} in area · ${uc.toLocaleString()} on your list</span>`;
+  const inCount = newForMeSpecies.filter(sp => isInSeason(sp.taxon.id) !== false).length;
+  const offCount = newForMeSpecies.length - inCount;
+  document.getElementById("resultCount").textContent = newForMeSpecies.length.toLocaleString();
+  document.getElementById("resultLabel").innerHTML = `species here new for you<br><span style="opacity:0.5;font-size:11px">${at.toLocaleString()} in area · ${uc.toLocaleString()} on your list</span>`;
   document.getElementById("resultsBar").classList.add("visible");
-  const el=document.getElementById("resultsList");el.innerHTML="";
-  newForMeSpecies.forEach(sp=>{
-    const t=sp.taxon,th=t.default_photo?.square_url,cn=t.preferred_common_name||t.name,em=TE[t.iconic_taxon_name]||"🔍";
-    const card=document.createElement("div");card.className="species-card";
-    card.innerHTML=`${th?`<img src="${th}" alt="${cn}" loading="lazy">`:`<div class="placeholder-thumb">${em}</div>`}<div class="species-info"><div class="common">${cn}</div><div class="scientific">${t.name}</div><div class="obs-count">${sp.count.toLocaleString()} obs in area</div></div><div class="fly-to" title="Zoom to observations">📍</div>`;
-    card.querySelector(".species-info").onclick=()=>window.open(`https://www.inaturalist.org/taxa/${t.id}`,"_blank");
-    card.querySelector("img, .placeholder-thumb")?.addEventListener("click",()=>window.open(`https://www.inaturalist.org/taxa/${t.id}`,"_blank"));
-    card.querySelector(".fly-to").onclick=e=>{e.stopPropagation();flyToTaxon(t.id);if(window.innerWidth<640){document.getElementById("resultsList").classList.remove("expanded");document.getElementById("chevron").classList.remove("up")}};
+  document.getElementById("resultsFilters").style.display = "flex";
+  document.getElementById("filterInfo").textContent = `${inCount} in season · ${offCount} off`;
+  updateResultsList();
+}
+
+function updateResultsList() {
+  const el = document.getElementById("resultsList");
+  el.innerHTML = "";
+  const filtered = seasonFilterOn
+    ? newForMeSpecies.filter(sp => isInSeason(sp.taxon.id) !== false)
+    : newForMeSpecies;
+
+  filtered.forEach(sp => {
+    const t = sp.taxon, th = t.default_photo?.square_url, cn = t.preferred_common_name || t.name, em = TE[t.iconic_taxon_name] || "🔍";
+    const offClass = isInSeason(t.id) === false ? " off-season" : "";
+    const card = document.createElement("div");
+    card.className = "species-card" + offClass;
+    card.innerHTML = `
+      ${th ? `<img src="${th}" alt="${cn}" loading="lazy">` : `<div class="placeholder-thumb">${em}</div>`}
+      <div class="species-info">
+        <div class="common">${cn}</div>
+        <div class="scientific">${t.name}</div>
+        <div class="meta-row">
+          <span class="obs-count">${sp.count.toLocaleString()} obs</span>
+          ${seasonBadgeHtml(t.id)}
+        </div>
+        ${makeSparkline(t.id)}
+      </div>
+      <div class="fly-to" title="Zoom to observations">📍</div>`;
+    card.querySelector(".species-info").onclick = () => window.open(`https://www.inaturalist.org/taxa/${t.id}`, "_blank");
+    card.querySelector("img, .placeholder-thumb")?.addEventListener("click", () => window.open(`https://www.inaturalist.org/taxa/${t.id}`, "_blank"));
+    card.querySelector(".fly-to").onclick = e => { e.stopPropagation(); flyToTaxon(t.id); if (window.innerWidth < 640) { document.getElementById("resultsList").classList.remove("expanded"); document.getElementById("chevron").classList.remove("up") } };
     el.appendChild(card);
   });
 }
+
 function toggleResults(){document.getElementById("resultsList").classList.toggle("expanded");document.getElementById("chevron").classList.toggle("up")}
-function clearResults(){document.getElementById("resultsBar").classList.remove("visible");document.getElementById("resultsList").innerHTML="";document.getElementById("mapBadge").classList.remove("visible");obsCluster.clearLayers();obsByTaxon=new Map();newForMeSpecies=[]}
+function clearResults(){
+  document.getElementById("resultsBar").classList.remove("visible");
+  document.getElementById("resultsFilters").style.display="none";
+  document.getElementById("resultsList").innerHTML="";
+  document.getElementById("mapBadge").classList.remove("visible");
+  obsCluster.clearLayers();obsByTaxon=new Map();newForMeSpecies=[];allFetchedObs=[];seasonMap=new Map();inSeasonSet=new Set();
+}
 function showLoading(m){document.getElementById("loadingText").textContent=m;document.getElementById("loading").classList.add("visible")}
 function hideLoading(){document.getElementById("loading").classList.remove("visible")}
 
