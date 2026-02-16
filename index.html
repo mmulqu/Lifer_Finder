@@ -10,142 +10,122 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --parchment: #f5f0e8; --ink: #2c2416; --ink-light: #6b5d4f;
-    --moss: #4a7c59; --moss-dark: #3a6347; --moss-pale: #e8f0ea;
-    --amber: #c97d3a; --amber-pale: #fdf3e7; --clay: #b85c3c;
-    --shadow: rgba(44,36,22,0.12); --radius: 10px; --panel-max: 420px;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchment);height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}
-  #map{position:absolute;inset:0;z-index:1}
-  .leaflet-control-attribution{font-size:10px!important}
-
-  /* Cluster overrides */
-  .marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(201,125,58,0.25)!important}
-  .marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:var(--amber)!important;color:#fff!important;font-family:'DM Sans',sans-serif!important;font-weight:600!important}
-
-  /* Custom observation marker */
-  .obs-marker{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.35)}
-
-  /* Popup */
-  .leaflet-popup-content-wrapper{border-radius:12px!important;box-shadow:0 4px 16px rgba(0,0,0,0.15)!important;padding:0!important;overflow:hidden}
-  .leaflet-popup-content{margin:0!important;width:240px!important}
-  .obs-popup{display:flex;flex-direction:column}
-  .obs-popup img{width:100%;height:160px;object-fit:cover;background:#e8e2d8}
-  .obs-popup .obs-meta{padding:10px 14px 12px}
-  .obs-popup .obs-common{font-weight:600;font-size:14px;line-height:1.3}
-  .obs-popup .obs-sci{font-size:12px;font-style:italic;color:var(--ink-light)}
-  .obs-popup .obs-date{font-size:11px;color:var(--ink-light);margin-top:4px}
-  .obs-popup .obs-user{font-size:11px;color:var(--moss);margin-top:2px}
-  .obs-popup .obs-link{display:block;padding:8px 14px;background:var(--moss);color:#fff;text-align:center;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.15s}
-  .obs-popup .obs-link:hover{background:var(--moss-dark)}
-  .leaflet-popup-tip{border-top-color:#fff!important}
-
-  .top-bar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,var(--parchment) 60%,transparent);pointer-events:none}
-  .top-bar>*{pointer-events:auto}
-  .logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);white-space:nowrap;text-shadow:0 1px 2px rgba(255,255,255,0.6)}
-  .logo span{color:var(--moss)}
-  .pill-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid var(--ink);background:var(--parchment);font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;box-shadow:0 2px 6px var(--shadow)}
-  .pill-btn:hover{background:var(--ink);color:var(--parchment)}
-  .pill-btn svg{width:16px;height:16px;flex-shrink:0}
-  .spacer{flex:1}
-
-  .sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:1500}
-  .sheet-backdrop.open{display:block}
-  .sheet{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--parchment);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px var(--shadow);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);max-height:88dvh;display:flex;flex-direction:column}
-  .sheet.open{transform:translateY(0)}
-  .sheet-handle{width:36px;height:4px;background:#ccc;border-radius:2px;margin:10px auto 6px;flex-shrink:0}
-  .sheet-header{padding:4px 20px 14px;border-bottom:1px solid rgba(0,0,0,0.08);flex-shrink:0}
-  .sheet-header h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink)}
-  .sheet-header p{font-size:13px;color:var(--ink-light);margin-top:2px}
-  .sheet-body{padding:16px 20px 24px;overflow-y:auto;flex:1}
-
-  .field{margin-bottom:16px}
-  .field label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:6px}
-  .field input,.field select{width:100%;padding:10px 14px;border:1.5px solid #d4cdc1;border-radius:var(--radius);font-family:inherit;font-size:15px;color:var(--ink);background:#fff;outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none}
-  .field select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%236b5d4f' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 14px center;padding-right:36px}
-  .field input:focus,.field select:focus{border-color:var(--moss)}
-  .field input::placeholder{color:#b8b0a4}
-
-  .autocomplete-wrap{position:relative}
-  .autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #d4cdc1;border-top:none;border-radius:0 0 var(--radius) var(--radius);max-height:200px;overflow-y:auto;z-index:10;display:none}
-  .autocomplete-list.visible{display:block}
-  .ac-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0ece5;display:flex;align-items:center;gap:8px}
-  .ac-item:hover{background:var(--moss-pale)}
-  .ac-item img{width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0}
-  .ac-item .ac-name{font-weight:500}
-  .ac-item .ac-sub{font-size:12px;color:var(--ink-light)}
-
-  .row{display:flex;gap:10px}
-  .row>.field{flex:1}
-
-  .mode-toggle{display:flex;border:1.5px solid #d4cdc1;border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
-  .mode-toggle button{flex:1;padding:10px;border:none;background:#fff;font-family:inherit;font-size:13px;font-weight:500;color:var(--ink-light);cursor:pointer;transition:all 0.15s}
-  .mode-toggle button.active{background:var(--moss);color:#fff}
-
-  .btn-go{width:100%;padding:14px;border-radius:var(--radius);border:none;background:var(--moss);color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s}
-  .btn-go:hover{background:var(--moss-dark)}
-  .btn-go:disabled{opacity:0.5;cursor:not-allowed}
-
-  .helper-text{font-size:12px;color:var(--ink-light);margin:-10px 0 16px}
-  .loc-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;margin-bottom:16px}
-  .loc-btn:hover{border-color:var(--moss);color:var(--moss)}
-  .loc-btn svg{width:14px;height:14px}
-
-  .badge{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius);margin-bottom:16px;font-size:14px}
-  .badge-place{background:var(--moss-pale)}
-  .badge-taxon{background:var(--amber-pale)}
-  .badge img{width:28px;height:28px;border-radius:6px;object-fit:cover}
-  .badge .badge-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--ink-light);padding:0 2px}
-  .badge .badge-close:hover{color:var(--ink)}
-
-  .results-bar{position:fixed;bottom:0;left:0;right:0;z-index:1200;display:none}
-  .results-bar.visible{display:flex;flex-direction:column}
-  .results-summary{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--ink);color:var(--parchment);cursor:pointer;user-select:none;position:relative}
-  .results-summary .count{font-family:'DM Serif Display',serif;font-size:28px;color:var(--amber);line-height:1}
-  .results-summary .label{font-size:13px;line-height:1.3}
-  .results-summary .chevron{margin-left:auto;transition:transform 0.2s;font-size:18px;opacity:0.6}
-  .results-summary .chevron.up{transform:rotate(180deg)}
-  .close-results{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--parchment);font-size:18px;cursor:pointer;opacity:0.4;padding:4px}
-  .close-results:hover{opacity:1}
-  .results-list{background:var(--parchment);max-height:55dvh;overflow-y:auto;display:none;border-top:2px solid var(--amber)}
-  .results-list.expanded{display:block}
-
-  .species-card{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;transition:background 0.1s;text-decoration:none;color:inherit}
-  .species-card:hover{background:var(--amber-pale)}
-  .species-card img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#e8e2d8}
-  .species-card .placeholder-thumb{width:44px;height:44px;border-radius:8px;background:#e8e2d8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
-  .species-info{flex:1;min-width:0}
-  .species-info .common{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .species-info .scientific{font-size:12px;font-style:italic;color:var(--ink-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .species-info .obs-count{font-size:11px;color:var(--moss);font-weight:500;margin-top:1px}
-  .species-card .fly-to{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--moss-pale);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s}
-  .species-card:hover .fly-to{background:var(--moss);color:#fff}
-
-  .loading-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(245,240,232,0.88);flex-direction:column;align-items:center;justify-content:center;gap:16px}
-  .loading-overlay.visible{display:flex}
-  .spinner{width:40px;height:40px;border:3px solid #d4cdc1;border-top-color:var(--moss);border-radius:50%;animation:spin 0.8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-text{font-size:14px;color:var(--ink-light);text-align:center;max-width:260px;line-height:1.4}
-
-  .tap-hint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:1100;background:var(--ink);color:var(--parchment);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap}
-  .tap-hint.visible{display:block}
-
-  /* Map obs count badge */
-  .map-badge{position:fixed;top:60px;left:16px;z-index:1000;background:var(--ink);color:var(--parchment);padding:6px 14px;border-radius:16px;font-size:12px;font-weight:500;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
-  .map-badge.visible{display:block}
-
-  @media(min-width:640px){
-    .sheet{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;max-height:calc(100dvh - 32px)}
-    .results-bar{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;overflow:hidden}
-  }
+:root{--parchment:#f5f0e8;--ink:#2c2416;--ink-light:#6b5d4f;--moss:#4a7c59;--moss-dark:#3a6347;--moss-pale:#e8f0ea;--amber:#c97d3a;--amber-pale:#fdf3e7;--clay:#b85c3c;--shadow:rgba(44,36,22,0.12);--radius:10px;--panel-max:420px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchment);height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}
+#map{position:absolute;inset:0;z-index:1}
+.leaflet-control-attribution{font-size:10px!important}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(201,125,58,0.25)!important}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:var(--amber)!important;color:#fff!important;font-family:'DM Sans',sans-serif!important;font-weight:600!important}
+.obs-marker{width:12px;height:12px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.35)}
+.leaflet-popup-content-wrapper{border-radius:12px!important;box-shadow:0 4px 16px rgba(0,0,0,0.15)!important;padding:0!important;overflow:hidden}
+.leaflet-popup-content{margin:0!important;width:240px!important}
+.obs-popup{display:flex;flex-direction:column}
+.obs-popup img{width:100%;height:160px;object-fit:cover;background:#e8e2d8}
+.obs-popup .obs-meta{padding:10px 14px 12px}
+.obs-popup .obs-common{font-weight:600;font-size:14px;line-height:1.3}
+.obs-popup .obs-sci{font-size:12px;font-style:italic;color:var(--ink-light)}
+.obs-popup .obs-date{font-size:11px;color:var(--ink-light);margin-top:4px}
+.obs-popup .obs-user{font-size:11px;color:var(--moss);margin-top:2px}
+.obs-popup .obs-link{display:block;padding:8px 14px;background:var(--moss);color:#fff;text-align:center;text-decoration:none;font-size:13px;font-weight:600;transition:background 0.15s}
+.obs-popup .obs-link:hover{background:var(--moss-dark)}
+.leaflet-popup-tip{border-top-color:#fff!important}
+.top-bar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:12px 16px;display:flex;align-items:center;gap:10px;background:linear-gradient(to bottom,var(--parchment) 60%,transparent);pointer-events:none}
+.top-bar>*{pointer-events:auto}
+.logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);white-space:nowrap;text-shadow:0 1px 2px rgba(255,255,255,0.6)}
+.logo span{color:var(--moss)}
+.pill-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid var(--ink);background:var(--parchment);font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;box-shadow:0 2px 6px var(--shadow)}
+.pill-btn:hover{background:var(--ink);color:var(--parchment)}
+.pill-btn svg{width:16px;height:16px;flex-shrink:0}
+.spacer{flex:1}
+.sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);z-index:1500}
+.sheet-backdrop.open{display:block}
+.sheet{position:fixed;bottom:0;left:0;right:0;z-index:2000;background:var(--parchment);border-radius:20px 20px 0 0;box-shadow:0 -4px 24px var(--shadow);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);max-height:88dvh;display:flex;flex-direction:column}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ccc;border-radius:2px;margin:10px auto 6px;flex-shrink:0}
+.sheet-header{padding:4px 20px 14px;border-bottom:1px solid rgba(0,0,0,0.08);flex-shrink:0}
+.sheet-header h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink)}
+.sheet-header p{font-size:13px;color:var(--ink-light);margin-top:2px}
+.sheet-body{padding:16px 20px 24px;overflow-y:auto;flex:1}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;border:1.5px solid #d4cdc1;border-radius:var(--radius);font-family:inherit;font-size:15px;color:var(--ink);background:#fff;outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none}
+.field select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%236b5d4f' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 14px center;padding-right:36px}
+.field input:focus,.field select:focus{border-color:var(--moss)}
+.field input::placeholder{color:#b8b0a4}
+.autocomplete-wrap{position:relative}
+.autocomplete-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #d4cdc1;border-top:none;border-radius:0 0 var(--radius) var(--radius);max-height:200px;overflow-y:auto;z-index:10;display:none}
+.autocomplete-list.visible{display:block}
+.ac-item{padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0ece5;display:flex;align-items:center;gap:8px}
+.ac-item:hover{background:var(--moss-pale)}
+.ac-item img{width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0}
+.ac-item .ac-name{font-weight:500}
+.ac-item .ac-sub{font-size:12px;color:var(--ink-light)}
+.row{display:flex;gap:10px}
+.row>.field{flex:1}
+.mode-toggle{display:flex;border:1.5px solid #d4cdc1;border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.mode-toggle button{flex:1;padding:10px;border:none;background:#fff;font-family:inherit;font-size:13px;font-weight:500;color:var(--ink-light);cursor:pointer;transition:all 0.15s}
+.mode-toggle button.active{background:var(--moss);color:#fff}
+.btn-go{width:100%;padding:14px;border-radius:var(--radius);border:none;background:var(--moss);color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background 0.15s}
+.btn-go:hover{background:var(--moss-dark)}
+.btn-go:disabled{opacity:0.5;cursor:not-allowed}
+.helper-text{font-size:12px;color:var(--ink-light);margin:-10px 0 16px}
+.loc-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;margin-bottom:16px}
+.loc-btn:hover{border-color:var(--moss);color:var(--moss)}
+.loc-btn svg{width:14px;height:14px}
+.badge{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius);margin-bottom:16px;font-size:14px;flex-wrap:wrap}
+.badge-place{background:var(--moss-pale)}
+.badge-taxon{background:var(--amber-pale)}
+.badge img{width:28px;height:28px;border-radius:6px;object-fit:cover}
+.badge .badge-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:16px;color:var(--ink-light);padding:0 2px}
+.badge .badge-close:hover{color:var(--ink)}
+.nearby-section{margin-bottom:16px}
+.nearby-section .section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.nearby-chips{display:flex;flex-wrap:wrap;gap:6px}
+.nearby-chip{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:16px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.nearby-chip:hover{border-color:var(--moss);color:var(--moss);background:var(--moss-pale)}
+.nearby-chip .chip-icon{font-size:13px;flex-shrink:0}
+.nearby-chip .chip-type{font-size:10px;color:var(--ink-light);margin-left:2px}
+.nearby-loading{font-size:12px;color:var(--ink-light);padding:4px 0;font-style:italic}
+.results-bar{position:fixed;bottom:0;left:0;right:0;z-index:1200;display:none}
+.results-bar.visible{display:flex;flex-direction:column}
+.results-summary{display:flex;align-items:center;gap:10px;padding:14px 20px;background:var(--ink);color:var(--parchment);cursor:pointer;user-select:none;position:relative}
+.results-summary .count{font-family:'DM Serif Display',serif;font-size:28px;color:var(--amber);line-height:1}
+.results-summary .label{font-size:13px;line-height:1.3}
+.results-summary .chevron{margin-left:auto;transition:transform 0.2s;font-size:18px;opacity:0.6}
+.results-summary .chevron.up{transform:rotate(180deg)}
+.close-results{position:absolute;top:8px;right:12px;background:none;border:none;color:var(--parchment);font-size:18px;cursor:pointer;opacity:0.4;padding:4px}
+.close-results:hover{opacity:1}
+.results-list{background:var(--parchment);max-height:55dvh;overflow-y:auto;display:none;border-top:2px solid var(--amber)}
+.results-list.expanded{display:block}
+.species-card{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,0.06);cursor:pointer;transition:background 0.1s;text-decoration:none;color:inherit}
+.species-card:hover{background:var(--amber-pale)}
+.species-card img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;background:#e8e2d8}
+.species-card .placeholder-thumb{width:44px;height:44px;border-radius:8px;background:#e8e2d8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.species-info{flex:1;min-width:0}
+.species-info .common{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.species-info .scientific{font-size:12px;font-style:italic;color:var(--ink-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.species-info .obs-count{font-size:11px;color:var(--moss);font-weight:500;margin-top:1px}
+.species-card .fly-to{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--moss-pale);display:flex;align-items:center;justify-content:center;font-size:14px;transition:background 0.15s}
+.species-card:hover .fly-to{background:var(--moss);color:#fff}
+.loading-overlay{display:none;position:fixed;inset:0;z-index:3000;background:rgba(245,240,232,0.88);flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.loading-overlay.visible{display:flex}
+.spinner{width:40px;height:40px;border:3px solid #d4cdc1;border-top-color:var(--moss);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--ink-light);text-align:center;max-width:260px;line-height:1.4}
+.tap-hint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:1100;background:var(--ink);color:var(--parchment);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;display:none;box-shadow:0 4px 12px rgba(0,0,0,0.2);white-space:nowrap}
+.tap-hint.visible{display:block}
+.map-badge{position:fixed;top:60px;left:16px;z-index:1000;background:var(--ink);color:var(--parchment);padding:6px 14px;border-radius:16px;font-size:12px;font-weight:500;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.map-badge.visible{display:block}
+@media(min-width:640px){
+  .sheet{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;max-height:calc(100dvh - 32px)}
+  .results-bar{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;overflow:hidden}
+}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div class="map-badge" id="mapBadge"></div>
-
 <div class="top-bar">
   <div class="logo">New for <span>Me</span></div>
   <div class="spacer"></div>
@@ -154,61 +134,41 @@
     Search
   </button>
 </div>
-
 <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeSheet()"></div>
 <div class="sheet" id="sheet">
   <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <h2>Find New Species</h2>
-    <p>Compare your life list against an area</p>
-  </div>
+  <div class="sheet-header"><h2>Find New Species</h2><p>Compare your life list against an area</p></div>
   <div class="sheet-body">
-    <div class="field">
-      <label>iNaturalist Username</label>
-      <input type="text" id="username" placeholder="e.g. kueda" autocapitalize="none" autocorrect="off" spellcheck="false">
-    </div>
-
+    <div class="field"><label>iNaturalist Username</label><input type="text" id="username" placeholder="e.g. kueda" autocapitalize="none" autocorrect="off" spellcheck="false"></div>
     <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:6px;">Area Selection</label>
     <div class="mode-toggle">
       <button class="active" data-mode="radius" onclick="setMode('radius',this)">📍 Radius</button>
       <button data-mode="place" onclick="setMode('place',this)">🗺 iNat Place</button>
     </div>
-
+    <div id="nearbySection" class="nearby-section" style="display:none;">
+      <div class="section-label">📌 Nearby iNat places</div>
+      <div class="nearby-chips" id="nearbyChips"></div>
+    </div>
     <div id="radiusFields">
       <div class="row">
-        <div class="field"><label>Latitude</label><input type="number" id="lat" step="any" placeholder="42.36"></div>
-        <div class="field"><label>Longitude</label><input type="number" id="lng" step="any" placeholder="-72.52"></div>
+        <div class="field"><label>Lat</label><input type="number" id="lat" step="any" placeholder="42.36"></div>
+        <div class="field"><label>Lng</label><input type="number" id="lng" step="any" placeholder="-72.52"></div>
       </div>
       <div class="field"><label>Radius (km)</label><input type="number" id="radius" value="10" min="1" max="100"></div>
       <p class="helper-text">Tap the map to set coordinates, or:</p>
-      <button class="loc-btn" onclick="useMyLocation()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
-        Use my location
-      </button>
+      <button class="loc-btn" onclick="useMyLocation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg> Use my location</button>
     </div>
-
     <div id="placeFields" style="display:none;">
-      <div class="field">
-        <label>Search iNaturalist Places</label>
-        <div class="autocomplete-wrap">
-          <input type="text" id="placeSearch" placeholder="e.g. Quabbin Reservoir, Mt Tom…">
-          <div class="autocomplete-list" id="placeResults"></div>
-        </div>
+      <div class="field"><label>Search iNaturalist Places</label>
+        <div class="autocomplete-wrap"><input type="text" id="placeSearch" placeholder="e.g. Quabbin Reservoir, Mt Tom…"><div class="autocomplete-list" id="placeResults"></div></div>
       </div>
-      <div id="selectedPlace" style="display:none;"></div>
     </div>
-
-    <div class="field">
-      <label>Filter by Taxon (optional)</label>
-      <div class="autocomplete-wrap">
-        <input type="text" id="taxonSearch" placeholder="e.g. Birds, Fungi, Odonata…">
-        <div class="autocomplete-list" id="taxonResults"></div>
-      </div>
+    <div id="selectedPlace" style="display:none;"></div>
+    <div class="field"><label>Filter by Taxon (optional)</label>
+      <div class="autocomplete-wrap"><input type="text" id="taxonSearch" placeholder="e.g. Birds, Fungi, Odonata…"><div class="autocomplete-list" id="taxonResults"></div></div>
     </div>
     <div id="selectedTaxon" style="display:none;"></div>
-
-    <div class="field">
-      <label>Observed Within</label>
+    <div class="field"><label>Observed Within</label>
       <select id="timeFilter">
         <option value="">Any time</option>
         <option value="14">Last 2 weeks</option>
@@ -217,18 +177,11 @@
         <option value="365" selected>Last year</option>
       </select>
     </div>
-
     <button class="btn-go" onclick="runSearch()">Find what's new for me</button>
   </div>
 </div>
-
 <div class="tap-hint" id="tapHint">Tap the map to set your search center</div>
-
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loadingText">Fetching your life list…</div>
-</div>
-
+<div class="loading-overlay" id="loading"><div class="spinner"></div><div class="loading-text" id="loadingText">Fetching your life list…</div></div>
 <div class="results-bar" id="resultsBar">
   <div class="results-summary" onclick="toggleResults()">
     <div class="count" id="resultCount">0</div>
@@ -242,480 +195,299 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
-// ==========================================================
-// ENDPOINTS
-// ==========================================================
-const TREES_WORKER = "https://inat-trees-worker.intrinsic3141.workers.dev";
-const INAT_PROXY   = "https://inat-api-proxy.intrinsic3141.workers.dev";
-const LIFE_TAXON_ID = 48460;
+const TREES_WORKER="https://inat-trees-worker.intrinsic3141.workers.dev";
+const INAT_PROXY="https://inat-api-proxy.intrinsic3141.workers.dev";
+const LIFE_TAXON_ID=48460;
 
-// ==========================================================
-// STATE
-// ==========================================================
-let map, searchCircle, placeLayer, obsCluster;
-let mode = "radius";
-let selectedPlaceId = null, selectedPlaceName = "";
-let selectedTaxonId = null, selectedTaxonName = "";
-let newForMeSpecies = [];
-// Map from taxon_id → array of observations with coords
-let obsByTaxon = new Map();
+let map,searchCircle,placeLayer,obsCluster;
+let mode="radius";
+let selectedPlaceId=null,selectedPlaceName="";
+let selectedTaxonId=null,selectedTaxonName="";
+let newForMeSpecies=[];
+let obsByTaxon=new Map();
 
-// ==========================================================
-// HELPERS
-// ==========================================================
-async function inatGet(endpoint, params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const resp = await fetch(`${INAT_PROXY}/v1${endpoint}${qs ? "?" + qs : ""}`);
-  if (!resp.ok) throw new Error(`iNat API error ${resp.status}`);
-  return resp.json();
+// ── helpers ──
+async function inatGet(ep,params={}){
+  const qs=new URLSearchParams(params).toString();
+  const r=await fetch(`${INAT_PROXY}/v1${ep}${qs?"?"+qs:""}`);
+  if(!r.ok) throw new Error(`iNat API ${r.status}`);
+  return r.json();
 }
+function getDateFilter(){const d=document.getElementById("timeFilter").value;if(!d)return null;const t=new Date();t.setDate(t.getDate()-parseInt(d));return t.toISOString().slice(0,10)}
 
-function getDateFilter() {
-  const days = document.getElementById("timeFilter").value;
-  if (!days) return null;
-  const d = new Date();
-  d.setDate(d.getDate() - parseInt(days));
-  return d.toISOString().slice(0, 10);
-}
-
-async function fetchAreaSpeciesCounts(params, onProgress) {
-  const results = [];
-  let page = 1, total = Infinity;
-  while (results.length < total && page <= 20) {
-    const data = await inatGet("/observations/species_counts", { ...params, per_page: 500, page });
-    total = data.total_results;
-    results.push(...(data.results || []));
-    if (onProgress) onProgress(results.length, total);
-    if ((data.results || []).length < 500) break;
-    page++;
+async function fetchAreaSpeciesCounts(p,cb){
+  const res=[];let pg=1,tot=Infinity;
+  while(res.length<tot&&pg<=20){
+    const d=await inatGet("/observations/species_counts",{...p,per_page:500,page:pg});
+    tot=d.total_results;res.push(...(d.results||[]));
+    if(cb)cb(res.length,tot);if((d.results||[]).length<500)break;pg++;
   }
-  return { total_results: total, results };
+  return{total_results:tot,results:res};
 }
-
-async function fetchUserSpeciesIds(username, taxonId) {
-  const resp = await fetch(`${TREES_WORKER}/build-taxonomy`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, taxonId }),
-  });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `Worker error ${resp.status}`);
-  }
-  const data = await resp.json();
-  return data.speciesTaxonIds || [];
+async function fetchUserSpeciesIds(u,tid){
+  const r=await fetch(`${TREES_WORKER}/build-taxonomy`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,taxonId:tid})});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||`Worker ${r.status}`)}
+  return(await r.json()).speciesTaxonIds||[];
 }
-
-/**
- * Fetch actual observations with coordinates for a set of taxon IDs in an area.
- * Returns array of observation objects with lat/lng.
- */
-async function fetchObservationsForTaxa(taxonIds, areaParams, d1, onProgress) {
-  const allObs = [];
-  // iNat URL limit ~8000 chars; batch taxon IDs in chunks of ~80
-  const chunks = [];
-  for (let i = 0; i < taxonIds.length; i += 80) {
-    chunks.push(taxonIds.slice(i, i + 80));
-  }
-
-  for (let ci = 0; ci < chunks.length; ci++) {
-    const chunk = chunks[ci];
-    let page = 1;
-    const maxPages = 3; // cap per chunk to avoid huge fetches
-    while (page <= maxPages) {
-      const params = {
-        ...areaParams,
-        taxon_id: chunk.join(","),
-        quality_grade: "research,needs_id",
-        photos: "true",
-        per_page: 200,
-        page,
-        order_by: "observed_on",
-        order: "desc",
-      };
-      if (d1) params.d1 = d1;
-
-      const data = await inatGet("/observations", params);
-      const results = data.results || [];
-
-      for (const obs of results) {
-        if (!obs.location) continue;
-        const [lat, lng] = obs.location.split(",").map(Number);
-        if (isNaN(lat) || isNaN(lng)) continue;
-        allObs.push({
-          id: obs.id,
-          lat, lng,
-          taxon_id: obs.taxon?.id,
-          common_name: obs.taxon?.preferred_common_name || obs.taxon?.name || "",
-          scientific_name: obs.taxon?.name || "",
-          iconic_taxon: obs.taxon?.iconic_taxon_name || "",
-          photo_url: obs.photos?.[0]?.url?.replace("square", "medium") || null,
-          photo_square: obs.photos?.[0]?.url || null,
-          observed_on: obs.observed_on || obs.time_observed_at || "",
-          user_login: obs.user?.login || "",
-          user_icon: obs.user?.icon_url || "",
-        });
+async function fetchObservationsForTaxa(taxonIds,areaP,d1,cb){
+  const allObs=[];const chunks=[];
+  for(let i=0;i<taxonIds.length;i+=80)chunks.push(taxonIds.slice(i,i+80));
+  for(let ci=0;ci<chunks.length;ci++){
+    let pg=1;while(pg<=3){
+      const p={...areaP,taxon_id:chunks[ci].join(","),quality_grade:"research,needs_id",photos:"true",per_page:200,page:pg,order_by:"observed_on",order:"desc"};
+      if(d1)p.d1=d1;
+      const d=await inatGet("/observations",p);
+      for(const obs of(d.results||[])){
+        if(!obs.location)continue;const[lat,lng]=obs.location.split(",").map(Number);
+        if(isNaN(lat)||isNaN(lng))continue;
+        allObs.push({id:obs.id,lat,lng,taxon_id:obs.taxon?.id,common_name:obs.taxon?.preferred_common_name||obs.taxon?.name||"",scientific_name:obs.taxon?.name||"",iconic_taxon:obs.taxon?.iconic_taxon_name||"",photo_url:obs.photos?.[0]?.url?.replace("square","medium")||null,observed_on:obs.observed_on||"",user_login:obs.user?.login||""});
       }
-
-      if (onProgress) onProgress(allObs.length, ci + 1, chunks.length);
-      if (results.length < 200) break;
-      page++;
+      if(cb)cb(allObs.length,ci+1,chunks.length);
+      if((d.results||[]).length<200)break;pg++;
     }
   }
   return allObs;
 }
 
-// ==========================================================
-// MAP
-// ==========================================================
-map = L.map("map", { center: [42.36, -72.52], zoom: 10, zoomControl: false });
-L.control.zoom({ position: "topright" }).addTo(map);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-  attribution: '&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
-  maxZoom: 19,
-}).addTo(map);
+// ── PLACES NEARBY ──
+// Fetches /v1/places/nearby with small bbox around coords.
+// Filters:
+//   standard: skip admin_level <= 10 (continents, countries, states)
+//   community: skip bbox_area > 10 (huge community places)
+async function fetchNearbyPlaces(lat,lng){
+  const d=0.15;
+  const data=await inatGet("/places/nearby",{
+    nelat:(lat+d).toFixed(4),nelng:(lng+d).toFixed(4),
+    swlat:(lat-d).toFixed(4),swlng:(lng-d).toFixed(4)
+  });
+  const places=[],seen=new Set();
+  for(const p of(data?.results?.standard||[])){
+    if(seen.has(p.id))continue;
+    const al=p.admin_level;
+    if(al!==null&&al!==undefined&&al<=10)continue;
+    if(p.bbox_area&&p.bbox_area>25)continue;
+    seen.add(p.id);places.push({...p,_src:"std"});
+  }
+  for(const p of(data?.results?.community||[])){
+    if(seen.has(p.id))continue;
+    if(p.bbox_area&&p.bbox_area>10)continue;
+    seen.add(p.id);places.push({...p,_src:"com"});
+  }
+  places.sort((a,b)=>{
+    if(a._src!==b._src)return a._src==="com"?-1:1;
+    return(a.bbox_area||999)-(b.bbox_area||999);
+  });
+  return places.slice(0,12);
+}
 
-obsCluster = L.markerClusterGroup({
-  maxClusterRadius: 45,
-  spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
-  iconCreateFunction: (cluster) => {
-    const count = cluster.getChildCount();
-    const size = count < 20 ? 32 : count < 100 ? 38 : 44;
-    return L.divIcon({
-      html: `<div style="width:${size}px;height:${size}px;line-height:${size}px;border-radius:50%;background:var(--amber);color:#fff;text-align:center;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${count > 999 ? Math.round(count/1000)+'k' : count}</div>`,
-      className: "",
-      iconSize: [size, size],
-    });
-  },
+let nearbyDebounce=null;
+function triggerNearbyFetch(lat,lng){
+  clearTimeout(nearbyDebounce);
+  nearbyDebounce=setTimeout(async()=>{
+    const sec=document.getElementById("nearbySection");
+    const chips=document.getElementById("nearbyChips");
+    chips.innerHTML='<div class="nearby-loading">Finding nearby places…</div>';
+    sec.style.display="block";
+    try{
+      const places=await fetchNearbyPlaces(lat,lng);
+      renderNearbyChips(places);
+    }catch(e){console.error(e);chips.innerHTML='<div class="nearby-loading">Could not load nearby places</div>'}
+  },400);
+}
+
+function chipIcon(p){
+  const icons={100:"🌲",20:"🏔",13:"🏝",9:"🏛",7:"🏘",1000:"🏘"};
+  if(p._src==="com")return icons[p.place_type]||"🌿";
+  if(p.admin_level===20)return"🏛";
+  return"📍";
+}
+function chipType(p){
+  if(p.place_type_name)return p.place_type_name;
+  if(p._src==="std"&&p.admin_level===20)return"County";
+  return p._src==="com"?"Community":"";
+}
+function renderNearbyChips(places){
+  const el=document.getElementById("nearbyChips");
+  if(!places||!places.length){el.innerHTML='<div class="nearby-loading">No nearby places found</div>';return}
+  el.innerHTML="";
+  for(const p of places){
+    const b=document.createElement("button");b.className="nearby-chip";
+    const t=chipType(p);
+    b.innerHTML=`<span class="chip-icon">${chipIcon(p)}</span>${p.name}${t?` <span class="chip-type">${t}</span>`:""}`;
+    b.onclick=()=>selectNearbyPlace(p);
+    el.appendChild(b);
+  }
+}
+function selectNearbyPlace(p){
+  setMode("place",null);
+  selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;
+  const el=document.getElementById("selectedPlace");
+  el.style.display="flex";el.className="badge badge-place";
+  el.innerHTML=`<span>${chipIcon(p)} ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
+  showPlaceBoundary(p);
+}
+function showPlaceBoundary(p){
+  if(placeLayer){map.removeLayer(placeLayer);placeLayer=null}
+  const geo=p.geometry_geojson||p.bounding_box_geojson;
+  if(!geo)return;
+  try{placeLayer=L.geoJSON(geo,{style:{color:"#4a7c59",fillColor:"#4a7c59",fillOpacity:0.06,weight:2,dashArray:"6 4"}}).addTo(map);map.fitBounds(placeLayer.getBounds(),{padding:[40,40]})}catch(e){}
+}
+
+// ── MAP ──
+map=L.map("map",{center:[42.36,-72.52],zoom:10,zoomControl:false});
+L.control.zoom({position:"topright"}).addTo(map);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",{attribution:'&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',maxZoom:19}).addTo(map);
+obsCluster=L.markerClusterGroup({maxClusterRadius:45,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
+  iconCreateFunction:c=>{const n=c.getChildCount(),sz=n<20?32:n<100?38:44;return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;line-height:${sz}px;border-radius:50%;background:var(--amber);color:#fff;text-align:center;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${n>999?Math.round(n/1000)+'k':n}</div>`,className:"",iconSize:[sz,sz]})}
 });
 map.addLayer(obsCluster);
 
-map.on("click", (e) => {
-  if (mode !== "radius") return;
-  document.getElementById("lat").value = e.latlng.lat.toFixed(5);
-  document.getElementById("lng").value = e.latlng.lng.toFixed(5);
+map.on("click",e=>{
+  if(mode!=="radius")return;
+  document.getElementById("lat").value=e.latlng.lat.toFixed(5);
+  document.getElementById("lng").value=e.latlng.lng.toFixed(5);
   drawCircle();
+  triggerNearbyFetch(e.latlng.lat,e.latlng.lng);
   document.getElementById("tapHint").classList.remove("visible");
 });
-document.getElementById("radius").addEventListener("change", drawCircle);
+document.getElementById("radius").addEventListener("change",drawCircle);
 
-function drawCircle() {
-  if (searchCircle) map.removeLayer(searchCircle);
-  const lat = parseFloat(document.getElementById("lat").value);
-  const lng = parseFloat(document.getElementById("lng").value);
-  const r = parseFloat(document.getElementById("radius").value) * 1000;
-  if (isNaN(lat) || isNaN(lng) || isNaN(r)) return;
-  searchCircle = L.circle([lat, lng], { radius: r, color: "#4a7c59", fillColor: "#4a7c59", fillOpacity: 0.08, weight: 2, dashArray: "6 4" }).addTo(map);
-  map.fitBounds(searchCircle.getBounds(), { padding: [40, 40] });
+function drawCircle(){
+  if(searchCircle)map.removeLayer(searchCircle);
+  const lat=parseFloat(document.getElementById("lat").value),lng=parseFloat(document.getElementById("lng").value),r=parseFloat(document.getElementById("radius").value)*1000;
+  if(isNaN(lat)||isNaN(lng)||isNaN(r))return;
+  searchCircle=L.circle([lat,lng],{radius:r,color:"#4a7c59",fillColor:"#4a7c59",fillOpacity:0.08,weight:2,dashArray:"6 4"}).addTo(map);
+  map.fitBounds(searchCircle.getBounds(),{padding:[40,40]});
 }
 
-const TAXA_COLORS = {
-  Aves: "#e05252", Mammalia: "#d97b28", Reptilia: "#7aba4f",
-  Amphibia: "#3bb3a0", Actinopterygii: "#4a90d9", Insecta: "#d4a024",
-  Arachnida: "#9b59b6", Mollusca: "#8e6d4a", Plantae: "#3a9945",
-  Fungi: "#c0392b", Chromista: "#16a085", Protozoa: "#2980b9",
-};
-const TAXA_EMOJI = { Aves:"🐦", Mammalia:"🦊", Reptilia:"🦎", Amphibia:"🐸", Actinopterygii:"🐟", Insecta:"🪲", Arachnida:"🕷", Mollusca:"🐌", Plantae:"🌿", Fungi:"🍄", Animalia:"🐾", Chromista:"🔬" };
+const TC={Aves:"#e05252",Mammalia:"#d97b28",Reptilia:"#7aba4f",Amphibia:"#3bb3a0",Actinopterygii:"#4a90d9",Insecta:"#d4a024",Arachnida:"#9b59b6",Mollusca:"#8e6d4a",Plantae:"#3a9945",Fungi:"#c0392b",Chromista:"#16a085"};
+const TE={Aves:"🐦",Mammalia:"🦊",Reptilia:"🦎",Amphibia:"🐸",Actinopterygii:"🐟",Insecta:"🪲",Arachnida:"🕷",Mollusca:"🐌",Plantae:"🌿",Fungi:"🍄",Animalia:"🐾",Chromista:"🔬"};
 
-function addObsToMap(observations) {
-  obsCluster.clearLayers();
-  obsByTaxon = new Map();
-
-  for (const obs of observations) {
-    // Index by taxon
-    if (!obsByTaxon.has(obs.taxon_id)) obsByTaxon.set(obs.taxon_id, []);
-    obsByTaxon.get(obs.taxon_id).push(obs);
-
-    const color = TAXA_COLORS[obs.iconic_taxon] || "#c97d3a";
-    const icon = L.divIcon({
-      className: "",
-      html: `<div class="obs-marker" style="background:${color}"></div>`,
-      iconSize: [12, 12],
-      iconAnchor: [6, 6],
-    });
-
-    const marker = L.marker([obs.lat, obs.lng], { icon });
-    const photoHtml = obs.photo_url
-      ? `<img src="${obs.photo_url}" alt="${obs.common_name}" onerror="this.style.display='none'">`
-      : "";
-    const dateStr = obs.observed_on ? new Date(obs.observed_on).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "";
-
-    marker.bindPopup(`
-      <div class="obs-popup">
-        ${photoHtml}
-        <div class="obs-meta">
-          <div class="obs-common">${obs.common_name}</div>
-          <div class="obs-sci">${obs.scientific_name}</div>
-          ${dateStr ? `<div class="obs-date">📅 ${dateStr}</div>` : ""}
-          <div class="obs-user">📷 ${obs.user_login}</div>
-        </div>
-        <a class="obs-link" href="https://www.inaturalist.org/observations/${obs.id}" target="_blank" rel="noopener">View on iNaturalist →</a>
-      </div>
-    `, { maxWidth: 260, minWidth: 240 });
-
-    obsCluster.addLayer(marker);
+function addObsToMap(obs){
+  obsCluster.clearLayers();obsByTaxon=new Map();
+  for(const o of obs){
+    if(!obsByTaxon.has(o.taxon_id))obsByTaxon.set(o.taxon_id,[]);
+    obsByTaxon.get(o.taxon_id).push(o);
+    const col=TC[o.iconic_taxon]||"#c97d3a";
+    const icon=L.divIcon({className:"",html:`<div class="obs-marker" style="background:${col}"></div>`,iconSize:[12,12],iconAnchor:[6,6]});
+    const m=L.marker([o.lat,o.lng],{icon});
+    const ph=o.photo_url?`<img src="${o.photo_url}" alt="${o.common_name}" onerror="this.style.display='none'">`:"";
+    const ds=o.observed_on?new Date(o.observed_on).toLocaleDateString("en-US",{year:"numeric",month:"short",day:"numeric"}):"";
+    m.bindPopup(`<div class="obs-popup">${ph}<div class="obs-meta"><div class="obs-common">${o.common_name}</div><div class="obs-sci">${o.scientific_name}</div>${ds?`<div class="obs-date">📅 ${ds}</div>`:""}<div class="obs-user">📷 ${o.user_login}</div></div><a class="obs-link" href="https://www.inaturalist.org/observations/${o.id}" target="_blank" rel="noopener">View on iNaturalist →</a></div>`,{maxWidth:260,minWidth:240});
+    obsCluster.addLayer(m);
   }
-
-  const badge = document.getElementById("mapBadge");
-  badge.textContent = `🗺 ${observations.length.toLocaleString()} observations mapped`;
-  badge.classList.add("visible");
+  const b=document.getElementById("mapBadge");b.textContent=`🗺 ${obs.length.toLocaleString()} observations mapped`;b.classList.add("visible");
+}
+function flyToTaxon(tid){
+  const o=obsByTaxon.get(tid);if(!o||!o.length)return;
+  if(o.length===1){map.setView([o[0].lat,o[0].lng],15);return}
+  map.fitBounds(L.latLngBounds(o.map(x=>[x.lat,x.lng])),{padding:[60,60],maxZoom:15});
 }
 
-function flyToTaxon(taxonId) {
-  const obs = obsByTaxon.get(taxonId);
-  if (!obs || !obs.length) return;
-  if (obs.length === 1) {
-    map.setView([obs[0].lat, obs[0].lng], 15);
-    return;
-  }
-  const bounds = L.latLngBounds(obs.map(o => [o.lat, o.lng]));
-  map.fitBounds(bounds, { padding: [60, 60], maxZoom: 15 });
+// ── SHEET ──
+function openSheet(){document.getElementById("sheet").classList.add("open");document.getElementById("sheetBackdrop").classList.add("open");if(mode==="radius"&&!document.getElementById("lat").value)document.getElementById("tapHint").classList.add("visible")}
+function closeSheet(){document.getElementById("sheet").classList.remove("open");document.getElementById("sheetBackdrop").classList.remove("open");document.getElementById("tapHint").classList.remove("visible")}
+function setMode(m,btn){
+  mode=m;document.querySelectorAll(".mode-toggle button").forEach(b=>b.classList.remove("active"));
+  (btn||document.querySelector(`[data-mode="${m}"]`))?.classList.add("active");
+  document.getElementById("radiusFields").style.display=m==="radius"?"block":"none";
+  document.getElementById("placeFields").style.display=m==="place"?"block":"none";
+}
+function useMyLocation(){
+  if(!navigator.geolocation)return alert("Geolocation not available");
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById("lat").value=p.coords.latitude.toFixed(5);
+    document.getElementById("lng").value=p.coords.longitude.toFixed(5);
+    map.setView([p.coords.latitude,p.coords.longitude],12);drawCircle();
+    triggerNearbyFetch(p.coords.latitude,p.coords.longitude);
+  },()=>alert("Could not get location"),{enableHighAccuracy:true});
 }
 
-// ==========================================================
-// SHEET
-// ==========================================================
-function openSheet() {
-  document.getElementById("sheet").classList.add("open");
-  document.getElementById("sheetBackdrop").classList.add("open");
-  if (mode === "radius" && !document.getElementById("lat").value) document.getElementById("tapHint").classList.add("visible");
+// ── AUTOCOMPLETE PLACES ──
+let plT;
+document.getElementById("placeSearch").addEventListener("input",e=>{clearTimeout(plT);const q=e.target.value.trim();if(q.length<2){document.getElementById("placeResults").classList.remove("visible");return}plT=setTimeout(()=>doSP(q),300)});
+async function doSP(q){try{const d=await inatGet("/places/autocomplete",{q,per_page:8});const l=document.getElementById("placeResults");l.innerHTML="";(d.results||[]).forEach(p=>{const div=document.createElement("div");div.className="ac-item";div.innerHTML=`<div><div class="ac-name">${p.display_name||p.name}</div>${p.place_type_name?`<div class="ac-sub">${p.place_type_name}</div>`:""}</div>`;div.onclick=()=>selectPlace(p);l.appendChild(div)});l.classList.toggle("visible",(d.results||[]).length>0)}catch(e){console.error(e)}}
+function selectPlace(p){
+  selectedPlaceId=p.id;selectedPlaceName=p.display_name||p.name;
+  document.getElementById("placeSearch").value="";document.getElementById("placeResults").classList.remove("visible");
+  const el=document.getElementById("selectedPlace");el.style.display="flex";el.className="badge badge-place";
+  el.innerHTML=`<span>📍 ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
+  showPlaceBoundary(p);
 }
-function closeSheet() {
-  document.getElementById("sheet").classList.remove("open");
-  document.getElementById("sheetBackdrop").classList.remove("open");
-  document.getElementById("tapHint").classList.remove("visible");
-}
-function setMode(m, btn) {
-  mode = m;
-  document.querySelectorAll(".mode-toggle button").forEach(b => b.classList.remove("active"));
-  btn.classList.add("active");
-  document.getElementById("radiusFields").style.display = m === "radius" ? "block" : "none";
-  document.getElementById("placeFields").style.display = m === "place" ? "block" : "none";
-}
-function useMyLocation() {
-  if (!navigator.geolocation) return alert("Geolocation not available");
-  navigator.geolocation.getCurrentPosition(
-    p => { document.getElementById("lat").value = p.coords.latitude.toFixed(5); document.getElementById("lng").value = p.coords.longitude.toFixed(5); map.setView([p.coords.latitude, p.coords.longitude], 12); drawCircle(); },
-    () => alert("Could not get location"), { enableHighAccuracy: true }
-  );
-}
+function clearPlace(){selectedPlaceId=null;selectedPlaceName="";document.getElementById("selectedPlace").style.display="none";if(placeLayer){map.removeLayer(placeLayer);placeLayer=null}}
 
-// ==========================================================
-// AUTOCOMPLETE — PLACES
-// ==========================================================
-let placeTimer;
-document.getElementById("placeSearch").addEventListener("input", e => {
-  clearTimeout(placeTimer);
-  const q = e.target.value.trim();
-  if (q.length < 2) { document.getElementById("placeResults").classList.remove("visible"); return; }
-  placeTimer = setTimeout(() => doSearchPlaces(q), 300);
-});
-async function doSearchPlaces(q) {
-  try {
-    const data = await inatGet("/places/autocomplete", { q, per_page: 8 });
-    const list = document.getElementById("placeResults"); list.innerHTML = "";
-    (data.results || []).forEach(p => {
-      const div = document.createElement("div"); div.className = "ac-item";
-      div.innerHTML = `<div><div class="ac-name">${p.display_name || p.name}</div>${p.place_type_name ? `<div class="ac-sub">${p.place_type_name}</div>` : ""}</div>`;
-      div.onclick = () => selectPlace(p); list.appendChild(div);
-    });
-    list.classList.toggle("visible", (data.results || []).length > 0);
-  } catch(e) { console.error(e); }
+// ── AUTOCOMPLETE TAXA ──
+let txT;
+document.getElementById("taxonSearch").addEventListener("input",e=>{clearTimeout(txT);const q=e.target.value.trim();if(q.length<2){document.getElementById("taxonResults").classList.remove("visible");return}txT=setTimeout(()=>doST(q),300)});
+async function doST(q){try{const d=await inatGet("/taxa/autocomplete",{q,per_page:8});const l=document.getElementById("taxonResults");l.innerHTML="";(d.results||[]).forEach(t=>{const th=t.default_photo?.square_url||"";const div=document.createElement("div");div.className="ac-item";div.innerHTML=`${th?`<img src="${th}">`:"" }<div><div class="ac-name">${t.preferred_common_name||t.name}</div><div class="ac-sub">${t.name} · ${t.rank}</div></div>`;div.onclick=()=>selectTaxon(t);l.appendChild(div)});l.classList.toggle("visible",(d.results||[]).length>0)}catch(e){console.error(e)}}
+function selectTaxon(t){
+  selectedTaxonId=t.id;selectedTaxonName=t.preferred_common_name||t.name;
+  document.getElementById("taxonSearch").value="";document.getElementById("taxonResults").classList.remove("visible");
+  const el=document.getElementById("selectedTaxon");el.style.display="flex";el.className="badge badge-taxon";
+  const th=t.default_photo?.square_url||"";
+  el.innerHTML=`${th?`<img src="${th}">`:"" }<span>${selectedTaxonName} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`;
 }
-function selectPlace(p) {
-  selectedPlaceId = p.id; selectedPlaceName = p.display_name || p.name;
-  document.getElementById("placeSearch").value = "";
-  document.getElementById("placeResults").classList.remove("visible");
-  const el = document.getElementById("selectedPlace");
-  el.style.display = "block"; el.className = "badge badge-place";
-  el.innerHTML = `<span>📍 ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
-  if (p.bounding_box_geojson) {
-    try { if (placeLayer) map.removeLayer(placeLayer); placeLayer = L.geoJSON(p.bounding_box_geojson, { style: { color: "#4a7c59", fillColor: "#4a7c59", fillOpacity: 0.06, weight: 2, dashArray: "6 4" } }).addTo(map); map.fitBounds(placeLayer.getBounds(), { padding: [40, 40] }); } catch(e) {}
-  }
-}
-function clearPlace() { selectedPlaceId = null; document.getElementById("selectedPlace").style.display = "none"; if (placeLayer) { map.removeLayer(placeLayer); placeLayer = null; } }
+function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElementById("selectedTaxon").style.display="none"}
 
-// ==========================================================
-// AUTOCOMPLETE — TAXA
-// ==========================================================
-let taxonTimer;
-document.getElementById("taxonSearch").addEventListener("input", e => {
-  clearTimeout(taxonTimer);
-  const q = e.target.value.trim();
-  if (q.length < 2) { document.getElementById("taxonResults").classList.remove("visible"); return; }
-  taxonTimer = setTimeout(() => doSearchTaxa(q), 300);
-});
-async function doSearchTaxa(q) {
-  try {
-    const data = await inatGet("/taxa/autocomplete", { q, per_page: 8 });
-    const list = document.getElementById("taxonResults"); list.innerHTML = "";
-    (data.results || []).forEach(t => {
-      const thumb = t.default_photo?.square_url || "";
-      const div = document.createElement("div"); div.className = "ac-item";
-      div.innerHTML = `${thumb ? `<img src="${thumb}">` : ""}<div><div class="ac-name">${t.preferred_common_name || t.name}</div><div class="ac-sub">${t.name} · ${t.rank}</div></div>`;
-      div.onclick = () => selectTaxon(t); list.appendChild(div);
-    });
-    list.classList.toggle("visible", (data.results || []).length > 0);
-  } catch(e) { console.error(e); }
-}
-function selectTaxon(t) {
-  selectedTaxonId = t.id; selectedTaxonName = t.preferred_common_name || t.name;
-  document.getElementById("taxonSearch").value = "";
-  document.getElementById("taxonResults").classList.remove("visible");
-  const el = document.getElementById("selectedTaxon");
-  el.style.display = "flex"; el.className = "badge badge-taxon";
-  const thumb = t.default_photo?.square_url || "";
-  el.innerHTML = `${thumb ? `<img src="${thumb}">` : ""}<span>${t.preferred_common_name || t.name} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`;
-}
-function clearTaxon() { selectedTaxonId = null; selectedTaxonName = ""; document.getElementById("selectedTaxon").style.display = "none"; }
-
-// ==========================================================
-// CORE SEARCH
-// ==========================================================
-async function runSearch() {
-  const username = document.getElementById("username").value.trim();
-  if (!username) return alert("Enter your iNaturalist username");
-  if (mode === "radius" && (!document.getElementById("lat").value || !document.getElementById("lng").value))
-    return alert("Set a location on the map or use GPS");
-  if (mode === "place" && !selectedPlaceId) return alert("Select an iNaturalist place");
-
+// ── SEARCH ──
+async function runSearch(){
+  const username=document.getElementById("username").value.trim();
+  if(!username)return alert("Enter your iNaturalist username");
+  const usePlace=selectedPlaceId!=null;
+  const useRadius=mode==="radius"&&!usePlace;
+  if(useRadius&&(!document.getElementById("lat").value||!document.getElementById("lng").value))return alert("Set a location on the map or use GPS");
+  if(mode==="place"&&!usePlace)return alert("Select an iNaturalist place");
   closeSheet();
-  const taxonId = selectedTaxonId || LIFE_TAXON_ID;
-  const d1 = getDateFilter();
-
-  try {
-    // ── 1. User species via trees-worker ──
-    showLoading(`Fetching your ${selectedTaxonName || ''} life list…`);
-    const userSpeciesIds = await fetchUserSpeciesIds(username, taxonId);
-    const userTaxonSet = new Set(userSpeciesIds);
-    showLoading(`You've observed ${userTaxonSet.size.toLocaleString()} species. Scanning area…`);
-
-    // ── 2. Area species counts via proxy ──
-    const areaParams = { taxon_id: taxonId, quality_grade: "research,needs_id" };
-    if (d1) areaParams.d1 = d1;
-    if (mode === "radius") {
-      areaParams.lat = document.getElementById("lat").value;
-      areaParams.lng = document.getElementById("lng").value;
-      areaParams.radius = document.getElementById("radius").value;
-    } else {
-      areaParams.place_id = selectedPlaceId;
+  const taxonId=selectedTaxonId||LIFE_TAXON_ID;
+  const d1=getDateFilter();
+  try{
+    showLoading(`Fetching your ${selectedTaxonName||""} life list…`);
+    const uids=await fetchUserSpeciesIds(username,taxonId);
+    const uset=new Set(uids);
+    showLoading(`You've observed ${uset.size.toLocaleString()} species. Scanning area…`);
+    const ap={taxon_id:taxonId,quality_grade:"research,needs_id"};
+    if(d1)ap.d1=d1;
+    if(usePlace){ap.place_id=selectedPlaceId}else{ap.lat=document.getElementById("lat").value;ap.lng=document.getElementById("lng").value;ap.radius=document.getElementById("radius").value}
+    const ad=await fetchAreaSpeciesCounts(ap,(l,t)=>showLoading(`Area species: ${l.toLocaleString()} / ${t.toLocaleString()}…`));
+    newForMeSpecies=ad.results.filter(r=>!uset.has(r.taxon.id)).sort((a,b)=>b.count-a.count);
+    displayResults(uset.size,ad.results.length);
+    const topIds=newForMeSpecies.slice(0,200).map(s=>s.taxon.id);
+    if(topIds.length>0){
+      showLoading(`Mapping observations for ${topIds.length} species…`);
+      const op={};
+      if(usePlace){op.place_id=selectedPlaceId}else{op.lat=document.getElementById("lat").value;op.lng=document.getElementById("lng").value;op.radius=document.getElementById("radius").value}
+      const obs=await fetchObservationsForTaxa(topIds,op,d1,(c,cd,ct)=>showLoading(`Loading observations: ${c.toLocaleString()} (batch ${cd}/${ct})…`));
+      addObsToMap(obs);
     }
-
-    const areaData = await fetchAreaSpeciesCounts(areaParams, (loaded, total) => {
-      showLoading(`Area species: ${loaded.toLocaleString()} / ${total.toLocaleString()}…`);
-    });
-
-    // ── 3. Set difference ──
-    newForMeSpecies = areaData.results
-      .filter(r => !userTaxonSet.has(r.taxon.id))
-      .sort((a, b) => b.count - a.count);
-
-    displayResults(userTaxonSet.size, areaData.results.length);
-
-    // ── 4. Fetch actual observations for top new-for-me species ──
-    // Cap to top 200 species by area obs count for performance
-    const topNewIds = newForMeSpecies.slice(0, 200).map(sp => sp.taxon.id);
-    if (topNewIds.length > 0) {
-      showLoading(`Fetching observation locations for ${topNewIds.length} species…`);
-      const obsAreaParams = {};
-      if (mode === "radius") {
-        obsAreaParams.lat = document.getElementById("lat").value;
-        obsAreaParams.lng = document.getElementById("lng").value;
-        obsAreaParams.radius = document.getElementById("radius").value;
-      } else {
-        obsAreaParams.place_id = selectedPlaceId;
-      }
-
-      const observations = await fetchObservationsForTaxa(topNewIds, obsAreaParams, d1, (count, chunkDone, totalChunks) => {
-        showLoading(`Loading observations: ${count.toLocaleString()} found (batch ${chunkDone}/${totalChunks})…`);
-      });
-
-      addObsToMap(observations);
-    }
-
-  } catch(err) {
-    console.error(err);
-    alert("Error: " + err.message);
-  } finally {
-    hideLoading();
-  }
+  }catch(e){console.error(e);alert("Error: "+e.message)}finally{hideLoading()}
 }
 
-// ==========================================================
-// RESULTS LIST
-// ==========================================================
-function displayResults(userCount, areaTotal) {
-  document.getElementById("resultCount").textContent = newForMeSpecies.length.toLocaleString();
-  document.getElementById("resultLabel").innerHTML = `species here new for you<br><span style="opacity:0.5;font-size:11px">${areaTotal.toLocaleString()} in area · ${userCount.toLocaleString()} on your list</span>`;
+// ── RESULTS ──
+function displayResults(uc,at){
+  document.getElementById("resultCount").textContent=newForMeSpecies.length.toLocaleString();
+  document.getElementById("resultLabel").innerHTML=`species here new for you<br><span style="opacity:0.5;font-size:11px">${at.toLocaleString()} in area · ${uc.toLocaleString()} on your list</span>`;
   document.getElementById("resultsBar").classList.add("visible");
-
-  const listEl = document.getElementById("resultsList");
-  listEl.innerHTML = "";
-
-  newForMeSpecies.forEach(sp => {
-    const t = sp.taxon;
-    const thumb = t.default_photo?.square_url;
-    const common = t.preferred_common_name || t.name;
-    const emoji = TAXA_EMOJI[t.iconic_taxon_name] || "🔍";
-
-    const card = document.createElement("div");
-    card.className = "species-card";
-    card.innerHTML = `
-      ${thumb ? `<img src="${thumb}" alt="${common}" loading="lazy">` : `<div class="placeholder-thumb">${emoji}</div>`}
-      <div class="species-info">
-        <div class="common">${common}</div>
-        <div class="scientific">${t.name}</div>
-        <div class="obs-count">${sp.count.toLocaleString()} observation${sp.count !== 1 ? "s" : ""} in area</div>
-      </div>
-      <div class="fly-to" title="Zoom to observations">📍</div>`;
-
-    // Tapping the card opens iNat; tapping the pin icon zooms
-    card.querySelector(".species-info").onclick = () => {
-      window.open(`https://www.inaturalist.org/taxa/${t.id}`, "_blank");
-    };
-    card.querySelector("img, .placeholder-thumb")?.addEventListener("click", () => {
-      window.open(`https://www.inaturalist.org/taxa/${t.id}`, "_blank");
-    });
-    card.querySelector(".fly-to").onclick = (e) => {
-      e.stopPropagation();
-      flyToTaxon(t.id);
-      // Collapse list on mobile for map visibility
-      if (window.innerWidth < 640) {
-        document.getElementById("resultsList").classList.remove("expanded");
-        document.getElementById("chevron").classList.remove("up");
-      }
-    };
-    listEl.appendChild(card);
+  const el=document.getElementById("resultsList");el.innerHTML="";
+  newForMeSpecies.forEach(sp=>{
+    const t=sp.taxon,th=t.default_photo?.square_url,cn=t.preferred_common_name||t.name,em=TE[t.iconic_taxon_name]||"🔍";
+    const card=document.createElement("div");card.className="species-card";
+    card.innerHTML=`${th?`<img src="${th}" alt="${cn}" loading="lazy">`:`<div class="placeholder-thumb">${em}</div>`}<div class="species-info"><div class="common">${cn}</div><div class="scientific">${t.name}</div><div class="obs-count">${sp.count.toLocaleString()} obs in area</div></div><div class="fly-to" title="Zoom to observations">📍</div>`;
+    card.querySelector(".species-info").onclick=()=>window.open(`https://www.inaturalist.org/taxa/${t.id}`,"_blank");
+    card.querySelector("img, .placeholder-thumb")?.addEventListener("click",()=>window.open(`https://www.inaturalist.org/taxa/${t.id}`,"_blank"));
+    card.querySelector(".fly-to").onclick=e=>{e.stopPropagation();flyToTaxon(t.id);if(window.innerWidth<640){document.getElementById("resultsList").classList.remove("expanded");document.getElementById("chevron").classList.remove("up")}};
+    el.appendChild(card);
   });
 }
+function toggleResults(){document.getElementById("resultsList").classList.toggle("expanded");document.getElementById("chevron").classList.toggle("up")}
+function clearResults(){document.getElementById("resultsBar").classList.remove("visible");document.getElementById("resultsList").innerHTML="";document.getElementById("mapBadge").classList.remove("visible");obsCluster.clearLayers();obsByTaxon=new Map();newForMeSpecies=[]}
+function showLoading(m){document.getElementById("loadingText").textContent=m;document.getElementById("loading").classList.add("visible")}
+function hideLoading(){document.getElementById("loading").classList.remove("visible")}
 
-function toggleResults() {
-  document.getElementById("resultsList").classList.toggle("expanded");
-  document.getElementById("chevron").classList.toggle("up");
-}
-function clearResults() {
-  document.getElementById("resultsBar").classList.remove("visible");
-  document.getElementById("resultsList").innerHTML = "";
-  document.getElementById("mapBadge").classList.remove("visible");
-  obsCluster.clearLayers();
-  obsByTaxon = new Map();
-  newForMeSpecies = [];
-}
-
-// ==========================================================
-// LOADING
-// ==========================================================
-function showLoading(msg) { document.getElementById("loadingText").textContent = msg; document.getElementById("loading").classList.add("visible"); }
-function hideLoading() { document.getElementById("loading").classList.remove("visible"); }
-
-// Close dropdowns
-document.addEventListener("click", e => {
-  if (!e.target.closest("#placeSearch") && !e.target.closest("#placeResults")) document.getElementById("placeResults").classList.remove("visible");
-  if (!e.target.closest("#taxonSearch") && !e.target.closest("#taxonResults")) document.getElementById("taxonResults").classList.remove("visible");
+document.addEventListener("click",e=>{
+  if(!e.target.closest("#placeSearch")&&!e.target.closest("#placeResults"))document.getElementById("placeResults").classList.remove("visible");
+  if(!e.target.closest("#taxonSearch")&&!e.target.closest("#taxonResults"))document.getElementById("taxonResults").classList.remove("visible");
 });
-
-setTimeout(openSheet, 400);
+setTimeout(openSheet,400);
 </script>
 </body>
 </html>
