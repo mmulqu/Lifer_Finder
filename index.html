@@ -81,7 +81,7 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 .badge .badge-close:hover{color:var(--ink)}
 .nearby-section{margin-bottom:16px}
 .nearby-section .section-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.nearby-chips{display:flex;flex-wrap:wrap;gap:6px}
+.nearby-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:170px;overflow-y:auto;padding-right:4px}
 .nearby-chip{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;border-radius:16px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .nearby-chip:hover{border-color:var(--moss);color:var(--moss);background:var(--moss-pale)}
 .nearby-chip .chip-icon{font-size:13px;flex-shrink:0}
@@ -447,10 +447,19 @@ function rebuildMap() {
   addObsToMap(allFetchedObs, seasonFilterOn);
 }
 
+let flyToIndex = new Map(); // taxon_id → current index
 function flyToTaxon(tid) {
   const o = obsByTaxon.get(tid); if (!o || !o.length) return;
-  if (o.length === 1) { map.setView([o[0].lat, o[0].lng], 15); return; }
-  map.fitBounds(L.latLngBounds(o.map(x => [x.lat, x.lng])), { padding: [60, 60], maxZoom: 15 });
+  let idx = flyToIndex.get(tid) || 0;
+  if (idx >= o.length) idx = 0;
+  map.setView([o[idx].lat, o[idx].lng], 16);
+  // Open popup for this observation
+  obsCluster.eachLayer(layer => {
+    if (layer.getLatLng().lat === o[idx].lat && layer.getLatLng().lng === o[idx].lng) {
+      layer.openPopup();
+    }
+  });
+  flyToIndex.set(tid, idx + 1);
 }
 
 // ── SEASON TOGGLE ──
@@ -484,6 +493,7 @@ function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElem
 async function runSearch(){
   const username=document.getElementById("username").value.trim();
   if(!username)return alert("Enter your iNaturalist username");
+  try{localStorage.setItem("nfm_username",username)}catch(e){}
   const usePlace=selectedPlaceId!=null;
   if(mode==="radius"&&!usePlace&&(!document.getElementById("lat").value||!document.getElementById("lng").value))return alert("Set a location on the map or use GPS");
   if(mode==="place"&&!usePlace)return alert("Select an iNaturalist place");
@@ -491,6 +501,7 @@ async function runSearch(){
   const taxonId=selectedTaxonId||LIFE_TAXON_ID;
   const d1=getDateFilter();
   seasonFilterOn = true;
+  flyToIndex = new Map();
   document.getElementById("seasonToggle").classList.add("active");
   try{
     showLoading(`Fetching your ${selectedTaxonName||""} life list…`);
@@ -583,7 +594,7 @@ function clearResults(){
   document.getElementById("resultsFilters").style.display="none";
   document.getElementById("resultsList").innerHTML="";
   document.getElementById("mapBadge").classList.remove("visible");
-  obsCluster.clearLayers();obsByTaxon=new Map();newForMeSpecies=[];allFetchedObs=[];seasonMap=new Map();inSeasonSet=new Set();
+  obsCluster.clearLayers();obsByTaxon=new Map();newForMeSpecies=[];allFetchedObs=[];seasonMap=new Map();inSeasonSet=new Set();flyToIndex=new Map();
 }
 function showLoading(m){document.getElementById("loadingText").textContent=m;document.getElementById("loading").classList.add("visible")}
 function hideLoading(){document.getElementById("loading").classList.remove("visible")}
@@ -592,6 +603,7 @@ document.addEventListener("click",e=>{
   if(!e.target.closest("#placeSearch")&&!e.target.closest("#placeResults"))document.getElementById("placeResults").classList.remove("visible");
   if(!e.target.closest("#taxonSearch")&&!e.target.closest("#taxonResults"))document.getElementById("taxonResults").classList.remove("visible");
 });
+try{const su=localStorage.getItem("nfm_username");if(su)document.getElementById("username").value=su}catch(e){}
 setTimeout(openSheet,400);
 </script>
 </body>
