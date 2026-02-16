@@ -22,9 +22,7 @@
     --radius: 10px;
     --panel-max: 420px;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   body {
     font-family: 'DM Sans', sans-serif;
     color: var(--ink);
@@ -33,449 +31,125 @@
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
-
-  #map {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-  }
+  #map { position: absolute; inset: 0; z-index: 1; }
   .leaflet-control-attribution { font-size: 10px !important; }
 
-  /* ---- TOP BAR ---- */
   .top-bar {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 1000;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 12px 16px; display: flex; align-items: center; gap: 10px;
     background: linear-gradient(to bottom, var(--parchment) 60%, transparent);
     pointer-events: none;
   }
   .top-bar > * { pointer-events: auto; }
-
-  .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--ink);
-    white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.6);
-  }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); white-space: nowrap; text-shadow: 0 1px 2px rgba(255,255,255,0.6); }
   .logo span { color: var(--moss); }
-
   .pill-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    border: 1.5px solid var(--ink);
-    background: var(--parchment);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.15s;
-    box-shadow: 0 2px 6px var(--shadow);
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+    border-radius: 20px; border: 1.5px solid var(--ink); background: var(--parchment);
+    font-family: inherit; font-size: 13px; font-weight: 500; color: var(--ink);
+    cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px var(--shadow);
   }
   .pill-btn:hover { background: var(--ink); color: var(--parchment); }
   .pill-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-
   .spacer { flex: 1; }
 
-  /* ---- BOTTOM SHEET ---- */
-  .sheet-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.25);
-    z-index: 1500;
-  }
+  .sheet-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.25); z-index: 1500; }
   .sheet-backdrop.open { display: block; }
-
   .sheet {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 2000;
-    background: var(--parchment);
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 24px var(--shadow);
-    transform: translateY(100%);
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 2000;
+    background: var(--parchment); border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 24px var(--shadow); transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    max-height: 85dvh;
-    display: flex;
-    flex-direction: column;
+    max-height: 85dvh; display: flex; flex-direction: column;
   }
   .sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: #ccc; border-radius: 2px; margin: 10px auto 6px; flex-shrink: 0; }
+  .sheet-header { padding: 4px 20px 14px; border-bottom: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+  .sheet-header h2 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--ink); }
+  .sheet-header p { font-size: 13px; color: var(--ink-light); margin-top: 2px; }
+  .sheet-body { padding: 16px 20px 24px; overflow-y: auto; flex: 1; }
 
-  .sheet-handle {
-    width: 36px; height: 4px;
-    background: #ccc;
-    border-radius: 2px;
-    margin: 10px auto 6px;
-    flex-shrink: 0;
-  }
-
-  .sheet-header {
-    padding: 4px 20px 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    flex-shrink: 0;
-  }
-  .sheet-header h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    color: var(--ink);
-  }
-  .sheet-header p {
-    font-size: 13px;
-    color: var(--ink-light);
-    margin-top: 2px;
-  }
-
-  .sheet-body {
-    padding: 16px 20px 24px;
-    overflow-y: auto;
-    flex: 1;
-  }
-
-  /* ---- FORMS ---- */
   .field { margin-bottom: 16px; }
-  .field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ink-light);
-    margin-bottom: 6px;
-  }
-
-  .field input, .field select {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid #d4cdc1;
-    border-radius: var(--radius);
-    font-family: inherit;
-    font-size: 15px;
-    color: var(--ink);
-    background: #fff;
-    outline: none;
-    transition: border-color 0.15s;
-  }
+  .field label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-light); margin-bottom: 6px; }
+  .field input, .field select { width: 100%; padding: 10px 14px; border: 1.5px solid #d4cdc1; border-radius: var(--radius); font-family: inherit; font-size: 15px; color: var(--ink); background: #fff; outline: none; transition: border-color 0.15s; }
   .field input:focus, .field select:focus { border-color: var(--moss); }
   .field input::placeholder { color: #b8b0a4; }
 
   .autocomplete-wrap { position: relative; }
-  .autocomplete-list {
-    position: absolute;
-    top: 100%;
-    left: 0; right: 0;
-    background: #fff;
-    border: 1.5px solid #d4cdc1;
-    border-top: none;
-    border-radius: 0 0 var(--radius) var(--radius);
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 10;
-    display: none;
-  }
+  .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1.5px solid #d4cdc1; border-top: none; border-radius: 0 0 var(--radius) var(--radius); max-height: 200px; overflow-y: auto; z-index: 10; display: none; }
   .autocomplete-list.visible { display: block; }
-  .ac-item {
-    padding: 10px 14px;
-    cursor: pointer;
-    font-size: 14px;
-    border-bottom: 1px solid #f0ece5;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+  .ac-item { padding: 10px 14px; cursor: pointer; font-size: 14px; border-bottom: 1px solid #f0ece5; display: flex; align-items: center; gap: 8px; }
   .ac-item:hover { background: var(--moss-pale); }
-  .ac-item img {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    object-fit: cover;
-    flex-shrink: 0;
-  }
+  .ac-item img { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
   .ac-item .ac-name { font-weight: 500; }
   .ac-item .ac-sub { font-size: 12px; color: var(--ink-light); }
 
   .row { display: flex; gap: 10px; }
   .row > .field { flex: 1; }
 
-  .mode-toggle {
-    display: flex;
-    border: 1.5px solid #d4cdc1;
-    border-radius: var(--radius);
-    overflow: hidden;
-    margin-bottom: 16px;
-  }
-  .mode-toggle button {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    background: #fff;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--ink-light);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .mode-toggle button.active {
-    background: var(--moss);
-    color: #fff;
-  }
+  .mode-toggle { display: flex; border: 1.5px solid #d4cdc1; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; }
+  .mode-toggle button { flex: 1; padding: 10px; border: none; background: #fff; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--ink-light); cursor: pointer; transition: all 0.15s; }
+  .mode-toggle button.active { background: var(--moss); color: #fff; }
 
-  .btn-go {
-    width: 100%;
-    padding: 14px;
-    border-radius: var(--radius);
-    border: none;
-    background: var(--moss);
-    color: #fff;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
+  .btn-go { width: 100%; padding: 14px; border-radius: var(--radius); border: none; background: var(--moss); color: #fff; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
   .btn-go:hover { background: var(--moss-dark); }
   .btn-go:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .helper-text {
-    font-size: 12px;
-    color: var(--ink-light);
-    margin: -10px 0 16px;
-  }
-
-  .loc-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 20px;
-    border: 1.5px solid #d4cdc1;
-    background: #fff;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 16px;
-  }
+  .helper-text { font-size: 12px; color: var(--ink-light); margin: -10px 0 16px; }
+  .loc-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; border: 1.5px solid #d4cdc1; background: #fff; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--ink); cursor: pointer; transition: all 0.15s; margin-bottom: 16px; }
   .loc-btn:hover { border-color: var(--moss); color: var(--moss); }
   .loc-btn svg { width: 14px; height: 14px; }
 
-  .badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-    font-size: 14px;
-  }
+  .badge { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius); margin-bottom: 16px; font-size: 14px; }
   .badge-place { background: var(--moss-pale); }
   .badge-taxon { background: var(--amber-pale); }
   .badge img { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; }
-  .badge .badge-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: var(--ink-light);
-    padding: 0 2px;
-  }
+  .badge .badge-close { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 16px; color: var(--ink-light); padding: 0 2px; }
   .badge .badge-close:hover { color: var(--ink); }
 
-  /* ---- RESULTS ---- */
-  .results-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 1200;
-    display: none;
-  }
+  .results-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 1200; display: none; }
   .results-bar.visible { display: flex; flex-direction: column; }
-
-  .results-summary {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 20px;
-    background: var(--ink);
-    color: var(--parchment);
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-  }
-  .results-summary .count {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: var(--amber);
-    line-height: 1;
-  }
+  .results-summary { display: flex; align-items: center; gap: 10px; padding: 14px 20px; background: var(--ink); color: var(--parchment); cursor: pointer; user-select: none; position: relative; }
+  .results-summary .count { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--amber); line-height: 1; }
   .results-summary .label { font-size: 13px; line-height: 1.3; }
-  .results-summary .chevron {
-    margin-left: auto;
-    transition: transform 0.2s;
-    font-size: 18px;
-    opacity: 0.6;
-  }
+  .results-summary .chevron { margin-left: auto; transition: transform 0.2s; font-size: 18px; opacity: 0.6; }
   .results-summary .chevron.up { transform: rotate(180deg); }
-
-  .close-results {
-    position: absolute;
-    top: 8px; right: 12px;
-    background: none;
-    border: none;
-    color: var(--parchment);
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0.4;
-    padding: 4px;
-  }
+  .close-results { position: absolute; top: 8px; right: 12px; background: none; border: none; color: var(--parchment); font-size: 18px; cursor: pointer; opacity: 0.4; padding: 4px; }
   .close-results:hover { opacity: 1; }
-
-  .results-list {
-    background: var(--parchment);
-    max-height: 55dvh;
-    overflow-y: auto;
-    display: none;
-    border-top: 2px solid var(--amber);
-  }
+  .results-list { background: var(--parchment); max-height: 55dvh; overflow-y: auto; display: none; border-top: 2px solid var(--amber); }
   .results-list.expanded { display: block; }
 
-  .species-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    cursor: pointer;
-    transition: background 0.1s;
-    text-decoration: none;
-    color: inherit;
-  }
+  .species-card { display: flex; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; transition: background 0.1s; text-decoration: none; color: inherit; }
   .species-card:hover { background: var(--amber-pale); }
-  .species-card img {
-    width: 44px; height: 44px;
-    border-radius: 8px;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: #e8e2d8;
-  }
-  .species-card .placeholder-thumb {
-    width: 44px; height: 44px;
-    border-radius: 8px;
-    background: #e8e2d8;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-  }
+  .species-card img { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #e8e2d8; }
+  .species-card .placeholder-thumb { width: 44px; height: 44px; border-radius: 8px; background: #e8e2d8; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; }
   .species-info { flex: 1; min-width: 0; }
-  .species-info .common {
-    font-weight: 600;
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .species-info .scientific {
-    font-size: 12px;
-    font-style: italic;
-    color: var(--ink-light);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .species-info .obs-count {
-    font-size: 11px;
-    color: var(--moss);
-    font-weight: 500;
-    margin-top: 1px;
-  }
+  .species-info .common { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .species-info .scientific { font-size: 12px; font-style: italic; color: var(--ink-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .species-info .obs-count { font-size: 11px; color: var(--moss); font-weight: 500; margin-top: 1px; }
 
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 3000;
-    background: rgba(245, 240, 232, 0.88);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-  }
+  .loading-overlay { display: none; position: fixed; inset: 0; z-index: 3000; background: rgba(245,240,232,0.88); flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
   .loading-overlay.visible { display: flex; }
-
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid #d4cdc1;
-    border-top-color: var(--moss);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  .spinner { width: 40px; height: 40px; border: 3px solid #d4cdc1; border-top-color: var(--moss); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 14px; color: var(--ink-light); text-align: center; max-width: 260px; line-height: 1.4; }
 
-  .loading-text {
-    font-size: 14px;
-    color: var(--ink-light);
-    text-align: center;
-    max-width: 260px;
-    line-height: 1.4;
-  }
-
-  .tap-hint {
-    position: fixed;
-    bottom: 80px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 1100;
-    background: var(--ink);
-    color: var(--parchment);
-    padding: 10px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 500;
-    display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    white-space: nowrap;
-  }
+  .tap-hint { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1100; background: var(--ink); color: var(--parchment); padding: 10px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); white-space: nowrap; }
   .tap-hint.visible { display: block; }
 
   @media (min-width: 640px) {
-    .sheet {
-      left: auto;
-      right: 16px;
-      bottom: 16px;
-      width: var(--panel-max);
-      border-radius: 16px;
-      max-height: calc(100dvh - 32px);
-    }
-    .results-bar {
-      left: auto;
-      right: 16px;
-      bottom: 16px;
-      width: var(--panel-max);
-      border-radius: 16px;
-      overflow: hidden;
-    }
+    .sheet { left: auto; right: 16px; bottom: 16px; width: var(--panel-max); border-radius: 16px; max-height: calc(100dvh - 32px); }
+    .results-bar { left: auto; right: 16px; bottom: 16px; width: var(--panel-max); border-radius: 16px; overflow: hidden; }
   }
 </style>
 </head>
 <body>
-
 <div id="map"></div>
 
 <div class="top-bar">
   <div class="logo">New for <span>Me</span></div>
   <div class="spacer"></div>
-  <button class="pill-btn" id="btnSettings" onclick="openSheet()">
+  <button class="pill-btn" onclick="openSheet()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
     Search
   </button>
@@ -489,7 +163,6 @@
     <p>Compare your life list against an area</p>
   </div>
   <div class="sheet-body">
-
     <div class="field">
       <label>iNaturalist Username</label>
       <input type="text" id="username" placeholder="e.g. kueda" autocapitalize="none" autocorrect="off" spellcheck="false">
@@ -497,25 +170,16 @@
 
     <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:6px;">Area Selection</label>
     <div class="mode-toggle">
-      <button class="active" data-mode="radius" onclick="setMode('radius', this)">📍 Radius</button>
-      <button data-mode="place" onclick="setMode('place', this)">🗺 iNat Place</button>
+      <button class="active" data-mode="radius" onclick="setMode('radius',this)">📍 Radius</button>
+      <button data-mode="place" onclick="setMode('place',this)">🗺 iNat Place</button>
     </div>
 
     <div id="radiusFields">
       <div class="row">
-        <div class="field">
-          <label>Latitude</label>
-          <input type="number" id="lat" step="any" placeholder="42.36">
-        </div>
-        <div class="field">
-          <label>Longitude</label>
-          <input type="number" id="lng" step="any" placeholder="-72.52">
-        </div>
+        <div class="field"><label>Latitude</label><input type="number" id="lat" step="any" placeholder="42.36"></div>
+        <div class="field"><label>Longitude</label><input type="number" id="lng" step="any" placeholder="-72.52"></div>
       </div>
-      <div class="field">
-        <label>Radius (km)</label>
-        <input type="number" id="radius" value="10" min="1" max="100">
-      </div>
+      <div class="field"><label>Radius (km)</label><input type="number" id="radius" value="10" min="1" max="100"></div>
       <p class="helper-text">Tap the map to set coordinates, or:</p>
       <button class="loc-btn" onclick="useMyLocation()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
@@ -559,7 +223,7 @@
     <div class="count" id="resultCount">0</div>
     <div class="label" id="resultLabel">species new for you</div>
     <div class="chevron" id="chevron">▲</div>
-    <button class="close-results" onclick="event.stopPropagation(); clearResults()">✕</button>
+    <button class="close-results" onclick="event.stopPropagation();clearResults()">✕</button>
   </div>
   <div class="results-list" id="resultsList"></div>
 </div>
@@ -567,9 +231,15 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ==========================================================
-// CONFIG — uses your existing inat-api-proxy worker
+// ENDPOINTS
+// inat-trees-worker: rate-limited, D1-backed user species
+// inat-api-proxy: CORS proxy for area species_counts
 // ==========================================================
-const PROXY = "https://inat-api-proxy.intrinsic3141.workers.dev";
+const TREES_WORKER = "https://inat-trees-worker.intrinsic3141.workers.dev";
+const INAT_PROXY   = "https://inat-api-proxy.intrinsic3141.workers.dev";
+
+// Life = 48460 (root of all iNat taxonomy)
+const LIFE_TAXON_ID = 48460;
 
 // ==========================================================
 // STATE
@@ -579,31 +249,28 @@ let mode = "radius";
 let selectedPlaceId = null;
 let selectedPlaceName = "";
 let selectedTaxonId = null;
+let selectedTaxonName = "";
 let newForMeSpecies = [];
 
 // ==========================================================
-// iNat API via proxy with client-side pagination
+// HELPERS
 // ==========================================================
 async function inatGet(endpoint, params = {}) {
   const qs = new URLSearchParams(params).toString();
-  const url = `${PROXY}/v1${endpoint}${qs ? "?" + qs : ""}`;
+  const url = `${INAT_PROXY}/v1${endpoint}${qs ? "?" + qs : ""}`;
   const resp = await fetch(url);
   if (!resp.ok) throw new Error(`iNat API error ${resp.status}`);
   return resp.json();
 }
 
-async function fetchAllSpeciesCounts(params, onProgress) {
+/** Paginate species_counts from iNat via proxy (for area queries) */
+async function fetchAreaSpeciesCounts(params, onProgress) {
   const results = [];
   let page = 1;
   let total = Infinity;
   const perPage = 500;
-
   while (results.length < total && page <= 20) {
-    const data = await inatGet("/observations/species_counts", {
-      ...params,
-      per_page: perPage,
-      page,
-    });
+    const data = await inatGet("/observations/species_counts", { ...params, per_page: perPage, page });
     total = data.total_results;
     results.push(...(data.results || []));
     if (onProgress) onProgress(results.length, total);
@@ -613,14 +280,29 @@ async function fetchAllSpeciesCounts(params, onProgress) {
   return { total_results: total, results };
 }
 
+/**
+ * Get user's species IDs via the inat-trees-worker /build-taxonomy endpoint.
+ * This uses the worker's rate limiter, D1 taxa cache, and Durable Objects.
+ * Returns an array of taxon IDs.
+ */
+async function fetchUserSpeciesIds(username, taxonId) {
+  const resp = await fetch(`${TREES_WORKER}/build-taxonomy`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, taxonId }),
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error || `Worker error ${resp.status}`);
+  }
+  const data = await resp.json();
+  return data.speciesTaxonIds || [];
+}
+
 // ==========================================================
 // MAP
 // ==========================================================
-map = L.map("map", {
-  center: [42.36, -72.52],
-  zoom: 10,
-  zoomControl: false,
-});
+map = L.map("map", { center: [42.36, -72.52], zoom: 10, zoomControl: false });
 L.control.zoom({ position: "topright" }).addTo(map);
 L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
   attribution: '&copy; <a href="https://openstreetmap.org">OSM</a> &copy; <a href="https://carto.com">CARTO</a>',
@@ -642,10 +324,7 @@ function drawCircle() {
   const lng = parseFloat(document.getElementById("lng").value);
   const r = parseFloat(document.getElementById("radius").value) * 1000;
   if (isNaN(lat) || isNaN(lng) || isNaN(r)) return;
-  searchCircle = L.circle([lat, lng], {
-    radius: r, color: "#4a7c59", fillColor: "#4a7c59",
-    fillOpacity: 0.08, weight: 2, dashArray: "6 4",
-  }).addTo(map);
+  searchCircle = L.circle([lat, lng], { radius: r, color: "#4a7c59", fillColor: "#4a7c59", fillOpacity: 0.08, weight: 2, dashArray: "6 4" }).addTo(map);
   map.fitBounds(searchCircle.getBounds(), { padding: [40, 40] });
 }
 
@@ -655,15 +334,13 @@ function drawCircle() {
 function openSheet() {
   document.getElementById("sheet").classList.add("open");
   document.getElementById("sheetBackdrop").classList.add("open");
-  if (mode === "radius" && !document.getElementById("lat").value)
-    document.getElementById("tapHint").classList.add("visible");
+  if (mode === "radius" && !document.getElementById("lat").value) document.getElementById("tapHint").classList.add("visible");
 }
 function closeSheet() {
   document.getElementById("sheet").classList.remove("open");
   document.getElementById("sheetBackdrop").classList.remove("open");
   document.getElementById("tapHint").classList.remove("visible");
 }
-
 function setMode(m, btn) {
   mode = m;
   document.querySelectorAll(".mode-toggle button").forEach(b => b.classList.remove("active"));
@@ -671,86 +348,65 @@ function setMode(m, btn) {
   document.getElementById("radiusFields").style.display = m === "radius" ? "block" : "none";
   document.getElementById("placeFields").style.display = m === "place" ? "block" : "none";
 }
-
 function useMyLocation() {
   if (!navigator.geolocation) return alert("Geolocation not available");
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      document.getElementById("lat").value = pos.coords.latitude.toFixed(5);
-      document.getElementById("lng").value = pos.coords.longitude.toFixed(5);
-      map.setView([pos.coords.latitude, pos.coords.longitude], 12);
-      drawCircle();
-    },
-    () => alert("Could not get location"),
-    { enableHighAccuracy: true }
+    p => { document.getElementById("lat").value = p.coords.latitude.toFixed(5); document.getElementById("lng").value = p.coords.longitude.toFixed(5); map.setView([p.coords.latitude, p.coords.longitude], 12); drawCircle(); },
+    () => alert("Could not get location"), { enableHighAccuracy: true }
   );
 }
 
 // ==========================================================
-// AUTOCOMPLETE — PLACES
+// AUTOCOMPLETE — PLACES (via proxy)
 // ==========================================================
 let placeTimer;
-document.getElementById("placeSearch").addEventListener("input", (e) => {
+document.getElementById("placeSearch").addEventListener("input", e => {
   clearTimeout(placeTimer);
   const q = e.target.value.trim();
   if (q.length < 2) { document.getElementById("placeResults").classList.remove("visible"); return; }
   placeTimer = setTimeout(() => searchPlaces(q), 300);
 });
-
 async function searchPlaces(q) {
   try {
     const data = await inatGet("/places/autocomplete", { q, per_page: 8 });
     const list = document.getElementById("placeResults");
     list.innerHTML = "";
     (data.results || []).forEach(p => {
-      const div = document.createElement("div");
-      div.className = "ac-item";
-      const name = p.display_name || p.name;
-      div.innerHTML = `<div><div class="ac-name">${name}</div>${p.place_type_name ? `<div class="ac-sub">${p.place_type_name}</div>` : ""}</div>`;
+      const div = document.createElement("div"); div.className = "ac-item";
+      div.innerHTML = `<div><div class="ac-name">${p.display_name || p.name}</div>${p.place_type_name ? `<div class="ac-sub">${p.place_type_name}</div>` : ""}</div>`;
       div.onclick = () => selectPlace(p);
       list.appendChild(div);
     });
     list.classList.toggle("visible", (data.results || []).length > 0);
   } catch(e) { console.error(e); }
 }
-
 function selectPlace(p) {
-  selectedPlaceId = p.id;
-  selectedPlaceName = p.display_name || p.name;
+  selectedPlaceId = p.id; selectedPlaceName = p.display_name || p.name;
   document.getElementById("placeSearch").value = "";
   document.getElementById("placeResults").classList.remove("visible");
   const el = document.getElementById("selectedPlace");
-  el.style.display = "block";
-  el.className = "badge badge-place";
+  el.style.display = "block"; el.className = "badge badge-place";
   el.innerHTML = `<span>📍 ${selectedPlaceName}</span><button class="badge-close" onclick="clearPlace()">✕</button>`;
   if (p.bounding_box_geojson) {
     try {
       if (placeLayer) map.removeLayer(placeLayer);
-      placeLayer = L.geoJSON(p.bounding_box_geojson, {
-        style: { color: "#4a7c59", fillColor: "#4a7c59", fillOpacity: 0.06, weight: 2, dashArray: "6 4" }
-      }).addTo(map);
+      placeLayer = L.geoJSON(p.bounding_box_geojson, { style: { color: "#4a7c59", fillColor: "#4a7c59", fillOpacity: 0.06, weight: 2, dashArray: "6 4" } }).addTo(map);
       map.fitBounds(placeLayer.getBounds(), { padding: [40, 40] });
     } catch(e) {}
   }
 }
-
-function clearPlace() {
-  selectedPlaceId = null;
-  document.getElementById("selectedPlace").style.display = "none";
-  if (placeLayer) { map.removeLayer(placeLayer); placeLayer = null; }
-}
+function clearPlace() { selectedPlaceId = null; document.getElementById("selectedPlace").style.display = "none"; if (placeLayer) { map.removeLayer(placeLayer); placeLayer = null; } }
 
 // ==========================================================
-// AUTOCOMPLETE — TAXA
+// AUTOCOMPLETE — TAXA (via proxy)
 // ==========================================================
 let taxonTimer;
-document.getElementById("taxonSearch").addEventListener("input", (e) => {
+document.getElementById("taxonSearch").addEventListener("input", e => {
   clearTimeout(taxonTimer);
   const q = e.target.value.trim();
   if (q.length < 2) { document.getElementById("taxonResults").classList.remove("visible"); return; }
   taxonTimer = setTimeout(() => searchTaxa(q), 300);
 });
-
 async function searchTaxa(q) {
   try {
     const data = await inatGet("/taxa/autocomplete", { q, per_page: 8 });
@@ -758,8 +414,7 @@ async function searchTaxa(q) {
     list.innerHTML = "";
     (data.results || []).forEach(t => {
       const thumb = t.default_photo?.square_url || "";
-      const div = document.createElement("div");
-      div.className = "ac-item";
+      const div = document.createElement("div"); div.className = "ac-item";
       div.innerHTML = `${thumb ? `<img src="${thumb}">` : ""}<div><div class="ac-name">${t.preferred_common_name || t.name}</div><div class="ac-sub">${t.name} · ${t.rank}</div></div>`;
       div.onclick = () => selectTaxon(t);
       list.appendChild(div);
@@ -767,49 +422,46 @@ async function searchTaxa(q) {
     list.classList.toggle("visible", (data.results || []).length > 0);
   } catch(e) { console.error(e); }
 }
-
 function selectTaxon(t) {
-  selectedTaxonId = t.id;
+  selectedTaxonId = t.id; selectedTaxonName = t.preferred_common_name || t.name;
   document.getElementById("taxonSearch").value = "";
   document.getElementById("taxonResults").classList.remove("visible");
   const el = document.getElementById("selectedTaxon");
-  el.style.display = "flex";
-  el.className = "badge badge-taxon";
+  el.style.display = "flex"; el.className = "badge badge-taxon";
   const thumb = t.default_photo?.square_url || "";
   el.innerHTML = `${thumb ? `<img src="${thumb}">` : ""}<span>${t.preferred_common_name || t.name} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`;
 }
-function clearTaxon() {
-  selectedTaxonId = null;
-  document.getElementById("selectedTaxon").style.display = "none";
-}
+function clearTaxon() { selectedTaxonId = null; selectedTaxonName = ""; document.getElementById("selectedTaxon").style.display = "none"; }
 
 // ==========================================================
-// SEARCH
+// CORE SEARCH
 // ==========================================================
 async function runSearch() {
   const username = document.getElementById("username").value.trim();
   if (!username) return alert("Enter your iNaturalist username");
   if (mode === "radius" && (!document.getElementById("lat").value || !document.getElementById("lng").value))
     return alert("Set a location on the map or use GPS");
-  if (mode === "place" && !selectedPlaceId)
-    return alert("Select an iNaturalist place");
+  if (mode === "place" && !selectedPlaceId) return alert("Select an iNaturalist place");
 
   closeSheet();
-  showLoading("Fetching your life list…");
+
+  // Determine the taxon ID — default to Life (48460) if none selected
+  const taxonId = selectedTaxonId || LIFE_TAXON_ID;
 
   try {
-    // 1. User species (global life list, optionally filtered by taxon)
-    const userParams = { user_id: username, quality_grade: "research,needs_id" };
-    if (selectedTaxonId) userParams.taxon_id = selectedTaxonId;
+    // ── STEP 1: User species via inat-trees-worker ──
+    // Uses rate-limited, D1-backed /build-taxonomy endpoint
+    showLoading(`Fetching your ${selectedTaxonName || ''} life list via trees worker…`);
+    const userSpeciesIds = await fetchUserSpeciesIds(username, taxonId);
+    const userTaxonSet = new Set(userSpeciesIds);
 
-    const userData = await fetchAllSpeciesCounts(userParams, (loaded, total) => {
-      showLoading(`Your species: ${loaded.toLocaleString()} of ${total.toLocaleString()}…`);
-    });
-    const userTaxonIds = new Set(userData.results.map(r => r.taxon.id));
+    showLoading(`You've observed ${userTaxonSet.size.toLocaleString()} species. Scanning area…`);
 
-    // 2. Area species
-    showLoading(`You've seen ${userTaxonIds.size.toLocaleString()} species. Scanning area…`);
+    // ── STEP 2: Area species via inat-api-proxy ──
+    // Paginate species_counts for the geographic area
     const areaParams = { quality_grade: "research,needs_id" };
+    areaParams.taxon_id = taxonId;
+
     if (mode === "radius") {
       areaParams.lat = document.getElementById("lat").value;
       areaParams.lng = document.getElementById("lng").value;
@@ -817,18 +469,18 @@ async function runSearch() {
     } else {
       areaParams.place_id = selectedPlaceId;
     }
-    if (selectedTaxonId) areaParams.taxon_id = selectedTaxonId;
 
-    const areaData = await fetchAllSpeciesCounts(areaParams, (loaded, total) => {
+    const areaData = await fetchAreaSpeciesCounts(areaParams, (loaded, total) => {
       showLoading(`Area species: ${loaded.toLocaleString()} of ${total.toLocaleString()}…`);
     });
 
-    // 3. Set difference
+    // ── STEP 3: Set difference ──
+    showLoading("Comparing lists…");
     newForMeSpecies = areaData.results
-      .filter(r => !userTaxonIds.has(r.taxon.id))
+      .filter(r => !userTaxonSet.has(r.taxon.id))
       .sort((a, b) => b.count - a.count);
 
-    displayResults(userTaxonIds.size, areaData.results.length);
+    displayResults(userTaxonSet.size, areaData.results.length);
   } catch(err) {
     console.error(err);
     alert("Error: " + err.message);
@@ -840,16 +492,11 @@ async function runSearch() {
 // ==========================================================
 // RESULTS
 // ==========================================================
-const TAXA_EMOJI = {
-  Aves:"🐦", Mammalia:"🦊", Reptilia:"🦎", Amphibia:"🐸",
-  Actinopterygii:"🐟", Insecta:"🪲", Arachnida:"🕷", Mollusca:"🐌",
-  Plantae:"🌿", Fungi:"🍄", Animalia:"🐾", Chromista:"🔬",
-};
+const TAXA_EMOJI = { Aves:"🐦", Mammalia:"🦊", Reptilia:"🦎", Amphibia:"🐸", Actinopterygii:"🐟", Insecta:"🪲", Arachnida:"🕷", Mollusca:"🐌", Plantae:"🌿", Fungi:"🍄", Animalia:"🐾", Chromista:"🔬" };
 
 function displayResults(userCount, areaTotal) {
   document.getElementById("resultCount").textContent = newForMeSpecies.length.toLocaleString();
-  document.getElementById("resultLabel").innerHTML =
-    `species here new for you<br><span style="opacity:0.5;font-size:11px">${areaTotal.toLocaleString()} in area · ${userCount.toLocaleString()} on your list</span>`;
+  document.getElementById("resultLabel").innerHTML = `species here new for you<br><span style="opacity:0.5;font-size:11px">${areaTotal.toLocaleString()} in area · ${userCount.toLocaleString()} on your list</span>`;
   document.getElementById("resultsBar").classList.add("visible");
 
   const listEl = document.getElementById("resultsList");
@@ -864,8 +511,7 @@ function displayResults(userCount, areaTotal) {
     const card = document.createElement("a");
     card.className = "species-card";
     card.href = `https://www.inaturalist.org/taxa/${t.id}`;
-    card.target = "_blank";
-    card.rel = "noopener";
+    card.target = "_blank"; card.rel = "noopener";
     card.innerHTML = `
       ${thumb ? `<img src="${thumb}" alt="${common}" loading="lazy">` : `<div class="placeholder-thumb">${emoji}</div>`}
       <div class="species-info">
@@ -878,12 +524,9 @@ function displayResults(userCount, areaTotal) {
 }
 
 function toggleResults() {
-  const list = document.getElementById("resultsList");
-  const chevron = document.getElementById("chevron");
-  list.classList.toggle("expanded");
-  chevron.classList.toggle("up");
+  document.getElementById("resultsList").classList.toggle("expanded");
+  document.getElementById("chevron").classList.toggle("up");
 }
-
 function clearResults() {
   document.getElementById("resultsBar").classList.remove("visible");
   document.getElementById("resultsList").innerHTML = "";
@@ -893,25 +536,15 @@ function clearResults() {
 // ==========================================================
 // LOADING
 // ==========================================================
-function showLoading(msg) {
-  document.getElementById("loadingText").textContent = msg;
-  document.getElementById("loading").classList.add("visible");
-}
-function hideLoading() {
-  document.getElementById("loading").classList.remove("visible");
-}
+function showLoading(msg) { document.getElementById("loadingText").textContent = msg; document.getElementById("loading").classList.add("visible"); }
+function hideLoading() { document.getElementById("loading").classList.remove("visible"); }
 
-// ==========================================================
 // Close dropdowns on outside click
-// ==========================================================
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#placeSearch") && !e.target.closest("#placeResults"))
-    document.getElementById("placeResults").classList.remove("visible");
-  if (!e.target.closest("#taxonSearch") && !e.target.closest("#taxonResults"))
-    document.getElementById("taxonResults").classList.remove("visible");
+document.addEventListener("click", e => {
+  if (!e.target.closest("#placeSearch") && !e.target.closest("#placeResults")) document.getElementById("placeResults").classList.remove("visible");
+  if (!e.target.closest("#taxonSearch") && !e.target.closest("#taxonResults")) document.getElementById("taxonResults").classList.remove("visible");
 });
 
-// Open search on load
 setTimeout(openSheet, 400);
 </script>
 </body>
