@@ -348,10 +348,10 @@ const TAXA_SUBS = {
   mammals: [
     { label:"All Mammals", emoji:"🦊", desc:"Warm-blooded & furry", taxonId:40151 },
     { label:"Carnivores", emoji:"🐺", desc:"Carnivora", taxonId:40153 },
-    { label:"Rodents & Rabbits", emoji:"🐿️", desc:"Rodentia & Lagomorpha", taxonId:40330 },
+    { label:"Rodents & Rabbits", emoji:"🐿️", desc:"Rodentia & Lagomorpha", taxonId:[43698,43094] },
     { label:"Bats", emoji:"🦇", desc:"Chiroptera", taxonId:40268 },
     { label:"Hoofed Animals", emoji:"🦌", desc:"Artiodactyla", taxonId:40498 },
-    { label:"Marine Mammals", emoji:"🐋", desc:"Whales, dolphins, seals", taxonId:152871 },
+    { label:"Marine Mammals", emoji:"🐋", desc:"Whales, dolphins, seals", taxonId:[152871,848317] },
   ],
   reptiles: [
     { label:"All Reptiles", emoji:"🦎", desc:"Scaled & cold-blooded", taxonId:26036 },
@@ -463,12 +463,12 @@ function applyTaxonFromBrowser(taxonId, name, emoji) {
     localStorage.setItem("nfm_taxon", JSON.stringify({ id: taxonId, name, emoji }));
   } catch(e) {}
 
-  // Apply to search state
+  // Apply to search state — taxonId can be number or array
   if (taxonId === LIFE_TAXON_ID) {
     selectedTaxonId = null;
     selectedTaxonName = "";
   } else {
-    selectedTaxonId = taxonId;
+    selectedTaxonId = taxonId; // number or array
     selectedTaxonName = name;
   }
 
@@ -761,6 +761,22 @@ function selectTaxon(t){
 }
 function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElementById("selectedTaxon").style.display="none";try{localStorage.removeItem("nfm_taxon")}catch(e){}}
 
+// ── TAXON ID HELPERS ──
+// selectedTaxonId can be a number or an array of numbers
+function taxonIdString(tid) {
+  // Convert to comma-separated string for iNat API
+  if (Array.isArray(tid)) return tid.join(",");
+  return String(tid);
+}
+async function fetchUserSpeciesIdsMulti(username, tid) {
+  // Trees worker takes a single taxonId, so for arrays we call in parallel and merge
+  const ids = Array.isArray(tid) ? tid : [tid];
+  const results = await Promise.all(ids.map(id => fetchUserSpeciesIds(username, id)));
+  const merged = new Set();
+  for (const arr of results) for (const id of arr) merged.add(id);
+  return [...merged];
+}
+
 // ── SEARCH ──
 async function runSearch(){
   const username=document.getElementById("username").value.trim();
@@ -777,10 +793,10 @@ async function runSearch(){
   document.getElementById("seasonToggle").classList.add("active");
   try{
     showLoading(`Fetching your ${selectedTaxonName||""} life list…`);
-    const uids=await fetchUserSpeciesIds(username,taxonId);
+    const uids=await fetchUserSpeciesIdsMulti(username,taxonId);
     const uset=new Set(uids);
     showLoading(`You've observed ${uset.size.toLocaleString()} species. Scanning area…`);
-    const ap={taxon_id:taxonId,quality_grade:"research,needs_id"};
+    const ap={taxon_id:taxonIdString(taxonId),quality_grade:"research,needs_id"};
     if(d1)ap.d1=d1;
     if(usePlace){ap.place_id=selectedPlaceId}else{ap.lat=document.getElementById("lat").value;ap.lng=document.getElementById("lng").value;ap.radius=document.getElementById("radius").value}
     const ad=await fetchAreaSpeciesCounts(ap,(l,t)=>showLoading(`Area species: ${l.toLocaleString()} / ${t.toLocaleString()}…`));
