@@ -267,8 +267,8 @@ body.dark .theme-toggle{border-color:#3a3a55}
         <div class="field"><label>Lat</label><input type="number" id="lat" step="any" placeholder="35.78"></div>
         <div class="field"><label>Lng</label><input type="number" id="lng" step="any" placeholder="-78.64"></div>
       </div>
-      <div class="field"><label>Radius (km) <span id="radiusAuto" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--moss)">· auto from zoom</span></label><input type="number" id="radius" value="10" min="1" max="100"></div>
-      <p class="helper-text">Radius adjusts with map zoom, or set manually:</p>
+      <div class="field"><label>Radius (km) <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--moss)">· set by zoom</span></label><input type="number" id="radius" value="10" min="1" max="100"></div>
+      <p class="helper-text">Tap the map — radius matches your zoom level:</p>
       <button class="loc-btn" onclick="useMyLocation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg> Use my location</button>
     </div>
     <div id="placeFields" style="display:none;">
@@ -720,7 +720,6 @@ obsCluster=L.markerClusterGroup({maxClusterRadius:45,spiderfyOnMaxZoom:true,show
 map.addLayer(obsCluster);
 
 // ── DYNAMIC RADIUS FROM ZOOM ──
-let radiusAutoSync=true; // auto-update radius from zoom until user manually edits
 function radiusFromZoom(){
   const bounds=map.getBounds();
   const center=map.getCenter();
@@ -729,31 +728,17 @@ function radiusFromZoom(){
   const dxM=center.distanceTo(east);
   const dyM=center.distanceTo(north);
   const halfSpanKm=Math.min(dxM,dyM)/1000;
-  // Use ~60% of the shorter half-span, clamped 1–100
+  // ~60% of the shorter half-span, clamped 1–100 km
   return Math.max(1,Math.min(100,Math.round(halfSpanKm*0.6)));
 }
-function syncRadiusToZoom(){
-  if(!radiusAutoSync)return;
-  const r=radiusFromZoom();
-  document.getElementById("radius").value=r;
-  // Redraw circle if coords are set
-  const lat=parseFloat(document.getElementById("lat").value);
-  const lng=parseFloat(document.getElementById("lng").value);
-  if(!isNaN(lat)&&!isNaN(lng))drawCircle(true); // true = don't re-fit map
-}
-map.on("zoomend",syncRadiusToZoom);
-// Manual edit disables auto-sync
-document.getElementById("radius").addEventListener("input",()=>{
-  radiusAutoSync=false;
-  document.getElementById("radiusAuto").textContent="· manual";
-});
 document.getElementById("radius").addEventListener("change",()=>drawCircle(false));
 
 map.on("click",e=>{
   if(mode!=="radius")return;
   document.getElementById("lat").value=e.latlng.lat.toFixed(5);
   document.getElementById("lng").value=e.latlng.lng.toFixed(5);
-  if(radiusAutoSync)syncRadiusToZoom();
+  // Set radius based on current zoom level at click time
+  document.getElementById("radius").value=radiusFromZoom();
   drawCircle(true);triggerNearbyFetch(e.latlng.lat,e.latlng.lng);
   document.getElementById("tapHint").classList.remove("visible");
 });
