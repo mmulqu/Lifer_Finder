@@ -88,6 +88,45 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 .nearby-chip .chip-type{font-size:10px;color:var(--ink-light);margin-left:2px}
 .nearby-loading{font-size:12px;color:var(--ink-light);padding:4px 0;font-style:italic}
 
+/* Taxa browser overlay */
+.taxa-overlay{position:fixed;inset:0;z-index:2500;background:var(--parchment);display:none;flex-direction:column;overflow:hidden}
+.taxa-overlay.open{display:flex}
+.taxa-header{padding:16px 20px 12px;flex-shrink:0;display:flex;align-items:center;gap:10px}
+.taxa-header .taxa-back{background:none;border:none;font-size:24px;color:var(--moss);cursor:pointer;padding:4px 8px 4px 0;font-family:inherit;display:none}
+.taxa-header .taxa-back.visible{display:block}
+.taxa-header-text h1{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);margin:0;line-height:1.2}
+.taxa-header-text p{font-size:13px;color:var(--ink-light);margin:2px 0 0}
+.taxa-body{flex:1;overflow-y:auto;padding:0 16px 32px}
+.taxa-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.taxa-tile{position:relative;overflow:hidden;aspect-ratio:1/0.85;border-radius:16px;border:none;cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 3px 12px rgba(0,0,0,0.15);font-family:inherit;text-align:left}
+.taxa-tile:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(0,0,0,0.2)}
+.taxa-tile .tile-glow{position:absolute;inset:0;background:radial-gradient(circle at 60% 30%,rgba(255,255,255,0.12) 0%,transparent 70%)}
+.taxa-tile .tile-emoji{font-size:36px;line-height:1;margin-bottom:6px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3))}
+.taxa-tile .tile-img{position:absolute;inset:0;object-fit:cover;width:100%;height:100%;opacity:0.35;transition:opacity 0.3s}
+.taxa-tile:hover .tile-img{opacity:0.5}
+.taxa-tile .tile-label{font-size:17px;font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.4);letter-spacing:0.2;position:relative}
+.taxa-tile .tile-arrow{position:absolute;top:12px;right:14px;font-size:16px;color:rgba(255,255,255,0.5)}
+.taxa-skip{display:block;width:100%;margin:16px 0 4px;padding:12px 16px;border-radius:12px;border:1.5px dashed #d4cdc1;background:transparent;font-family:inherit;font-size:14px;font-weight:500;color:var(--ink-light);cursor:pointer;transition:all 0.15s}
+.taxa-skip:hover{border-color:var(--moss);color:var(--moss)}
+.taxa-sub-list{display:flex;flex-direction:column;gap:8px}
+.taxa-sub{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:14px;border:1.5px solid #e8e2d8;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.15s}
+.taxa-sub:hover{border-color:var(--moss);background:var(--moss-pale)}
+.taxa-sub.primary{background:linear-gradient(135deg,var(--moss) 0%,var(--moss-dark) 100%);border-color:transparent}
+.taxa-sub.primary:hover{opacity:0.9;background:linear-gradient(135deg,var(--moss) 0%,var(--moss-dark) 100%)}
+.taxa-sub .sub-icon{width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.taxa-sub.primary .sub-icon{background:rgba(255,255,255,0.15)}
+.taxa-sub:not(.primary) .sub-icon{background:#f5f0e8}
+.taxa-sub .sub-label{font-size:15px;font-weight:600}
+.taxa-sub.primary .sub-label{color:#fff}
+.taxa-sub .sub-desc{font-size:12px;margin-top:1px}
+.taxa-sub.primary .sub-desc{color:rgba(255,255,255,0.7)}
+.taxa-sub:not(.primary) .sub-desc{color:var(--ink-light)}
+.taxa-sub .sub-arrow{margin-left:auto;font-size:18px}
+.taxa-sub.primary .sub-arrow{color:rgba(255,255,255,0.5)}
+.taxa-sub:not(.primary) .sub-arrow{color:#ccc}
+.browse-taxon-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;border:1.5px solid #d4cdc1;background:#fff;font-family:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all 0.15s;margin-bottom:8px}
+.browse-taxon-btn:hover{border-color:var(--moss);color:var(--moss)}
+
 /* Results bar */
 .results-bar{position:fixed;bottom:0;left:0;right:0;z-index:1200;display:none}
 .results-bar.visible{display:flex;flex-direction:column}
@@ -194,10 +233,12 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
       </div>
     </div>
     <div id="selectedPlace" style="display:none;"></div>
-    <div class="field"><label>Filter by Taxon (optional)</label>
-      <div class="autocomplete-wrap"><input type="text" id="taxonSearch" placeholder="e.g. Birds, Fungi, Odonata…"><div class="autocomplete-list" id="taxonResults"></div></div>
-    </div>
+    <label style="display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-light);margin-bottom:6px;">Focus Taxon</label>
+    <button class="browse-taxon-btn" onclick="closeSheet();openTaxaBrowser()">🔎 Browse &amp; change group</button>
     <div id="selectedTaxon" style="display:none;"></div>
+    <div class="field"><label>Or search taxa directly</label>
+      <div class="autocomplete-wrap"><input type="text" id="taxonSearch" placeholder="e.g. Odonata, Quercus…"><div class="autocomplete-list" id="taxonResults"></div></div>
+    </div>
     <div class="field"><label>Observed Within</label>
       <select id="timeFilter">
         <option value="">Any time</option>
@@ -226,6 +267,18 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
   <div class="results-list" id="resultsList"></div>
 </div>
 
+<!-- Taxa Browser Overlay -->
+<div class="taxa-overlay" id="taxaBrowser">
+  <div class="taxa-header">
+    <button class="taxa-back" id="taxaBack" onclick="taxaBrowserBack()">‹</button>
+    <div class="taxa-header-text">
+      <h1 id="taxaTitle">What are you<br>looking for?</h1>
+      <p id="taxaSubtitle">Pick a group to find species new for you</p>
+    </div>
+  </div>
+  <div class="taxa-body" id="taxaBody"></div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
@@ -245,6 +298,218 @@ let allFetchedObs=[];
 let seasonMap=new Map(); // taxon_id → [12 month counts]
 let inSeasonSet=new Set();
 let seasonFilterOn=true;
+
+// ── TAXA BROWSER DATA ──
+const TAXA_GROUPS = [
+  { id:"birds", label:"Birds", emoji:"🐦", taxonId:3, bg:"linear-gradient(135deg,#5b8c6e,#3a6347)", img:"" },
+  { id:"plants", label:"Plants", emoji:"🌿", taxonId:47126, bg:"linear-gradient(135deg,#6a9f4d,#3a6e28)", img:"" },
+  { id:"fungi", label:"Fungi", emoji:"🍄", taxonId:47170, bg:"linear-gradient(135deg,#8b5e3c,#5a3420)", img:"" },
+  { id:"insects", label:"Insects", emoji:"🪲", taxonId:47158, bg:"linear-gradient(135deg,#b8943a,#7a6218)", img:"" },
+  { id:"mammals", label:"Mammals", emoji:"🦊", taxonId:40151, bg:"linear-gradient(135deg,#7a6b5a,#4a3c2e)", img:"" },
+  { id:"reptiles", label:"Reptiles", emoji:"🦎", taxonId:26036, bg:"linear-gradient(135deg,#6b8a3e,#3f5a1e)", img:"" },
+  { id:"amphibians", label:"Amphibians", emoji:"🐸", taxonId:20978, bg:"linear-gradient(135deg,#3a8a7a,#1e5a4a)", img:"" },
+  { id:"arachnids", label:"Arachnids", emoji:"🕷️", taxonId:47119, bg:"linear-gradient(135deg,#6a4a7a,#3e2a4e)", img:"" },
+];
+const TAXA_SUBS = {
+  birds: [
+    { label:"All Birds", emoji:"🐦", desc:"Everything with feathers", taxonId:3 },
+    { label:"Songbirds", emoji:"🐤", desc:"Warblers, sparrows, finches", taxonId:7251 },
+    { label:"Raptors", emoji:"🦅", desc:"Hawks, eagles, falcons", taxonId:71261 },
+    { label:"Owls", emoji:"🦉", desc:"Strigiformes", taxonId:19350 },
+    { label:"Waterbirds", emoji:"🦆", desc:"Ducks, herons, geese", taxonId:6888 },
+    { label:"Shorebirds", emoji:"🪿", desc:"Plovers, sandpipers", taxonId:67561 },
+    { label:"Woodpeckers", emoji:"🪶", desc:"Piciformes", taxonId:18236 },
+    { label:"Hummingbirds", emoji:"💚", desc:"Trochilidae", taxonId:6040 },
+  ],
+  plants: [
+    { label:"All Plants", emoji:"🌿", desc:"The full plant kingdom", taxonId:47126 },
+    { label:"Flowering Plants", emoji:"🌸", desc:"Angiosperms", taxonId:47125 },
+    { label:"Ferns & Allies", emoji:"🌿", desc:"Polypodiopsida", taxonId:241944 },
+    { label:"Conifers", emoji:"🌲", desc:"Pinopsida", taxonId:136329 },
+    { label:"Grasses & Sedges", emoji:"🌾", desc:"Poales", taxonId:47163 },
+    { label:"Orchids", emoji:"🪻", desc:"Orchidaceae", taxonId:47217 },
+    { label:"Mosses", emoji:"🟢", desc:"Bryophytes & liverworts", taxonId:311249 },
+  ],
+  fungi: [
+    { label:"All Fungi", emoji:"🍄", desc:"The fungal kingdom", taxonId:47170 },
+    { label:"Mushrooms", emoji:"🍄", desc:"Agaricomycetes", taxonId:47169 },
+    { label:"Lichens", emoji:"🪨", desc:"Lichenized fungi", taxonId:54743 },
+    { label:"Slime Molds", emoji:"🫠", desc:"Mycetozoa", taxonId:47685 },
+  ],
+  insects: [
+    { label:"All Insects", emoji:"🪲", desc:"Six-legged arthropods", taxonId:47158 },
+    { label:"Butterflies & Moths", emoji:"🦋", desc:"Lepidoptera", taxonId:47157 },
+    { label:"Dragonflies", emoji:"✨", desc:"Odonata", taxonId:47792 },
+    { label:"Beetles", emoji:"🪲", desc:"Coleoptera", taxonId:47208 },
+    { label:"Bees, Wasps & Ants", emoji:"🐝", desc:"Hymenoptera", taxonId:47201 },
+    { label:"Flies", emoji:"🪰", desc:"Diptera", taxonId:47822 },
+    { label:"True Bugs", emoji:"🐛", desc:"Hemiptera", taxonId:47744 },
+  ],
+  mammals: [
+    { label:"All Mammals", emoji:"🦊", desc:"Warm-blooded & furry", taxonId:40151 },
+    { label:"Carnivores", emoji:"🐺", desc:"Carnivora", taxonId:40153 },
+    { label:"Rodents & Rabbits", emoji:"🐿️", desc:"Rodentia & Lagomorpha", taxonId:40330 },
+    { label:"Bats", emoji:"🦇", desc:"Chiroptera", taxonId:40268 },
+    { label:"Hoofed Animals", emoji:"🦌", desc:"Artiodactyla", taxonId:40498 },
+    { label:"Marine Mammals", emoji:"🐋", desc:"Whales, dolphins, seals", taxonId:152871 },
+  ],
+  reptiles: [
+    { label:"All Reptiles", emoji:"🦎", desc:"Scaled & cold-blooded", taxonId:26036 },
+    { label:"Snakes", emoji:"🐍", desc:"Serpentes", taxonId:85553 },
+    { label:"Turtles", emoji:"🐢", desc:"Testudines", taxonId:39532 },
+    { label:"Lizards", emoji:"🦎", desc:"Lacertilia", taxonId:85604 },
+    { label:"Crocodilians", emoji:"🐊", desc:"Crocodylia", taxonId:40481 },
+  ],
+  amphibians: [
+    { label:"All Amphibians", emoji:"🐸", desc:"Between land & water", taxonId:20978 },
+    { label:"Frogs & Toads", emoji:"🐸", desc:"Anura", taxonId:20979 },
+    { label:"Salamanders & Newts", emoji:"🔥", desc:"Caudata", taxonId:26790 },
+  ],
+  arachnids: [
+    { label:"All Arachnids", emoji:"🕷️", desc:"Eight-legged arthropods", taxonId:47119 },
+    { label:"Spiders", emoji:"🕸️", desc:"Araneae", taxonId:47118 },
+    { label:"Ticks & Mites", emoji:"🔴", desc:"Acari", taxonId:83188 },
+    { label:"Harvestmen", emoji:"🦿", desc:"Opiliones", taxonId:47367 },
+  ],
+};
+
+let taxaBrowserGroup = null; // currently viewing subcategories of this group
+
+function openTaxaBrowser() {
+  taxaBrowserGroup = null;
+  renderTaxaGroups();
+  document.getElementById("taxaBrowser").classList.add("open");
+}
+function closeTaxaBrowser() {
+  document.getElementById("taxaBrowser").classList.remove("open");
+}
+function taxaBrowserBack() {
+  if (taxaBrowserGroup) {
+    taxaBrowserGroup = null;
+    renderTaxaGroups();
+  }
+}
+
+function renderTaxaGroups() {
+  document.getElementById("taxaTitle").innerHTML = "What are you<br>looking for?";
+  document.getElementById("taxaSubtitle").textContent = "Pick a group to find species new for you";
+  document.getElementById("taxaBack").classList.remove("visible");
+  const body = document.getElementById("taxaBody");
+  body.innerHTML = "";
+
+  // Skip button
+  const skip = document.createElement("button");
+  skip.className = "taxa-skip";
+  skip.textContent = "🔍 Search all life — skip to map";
+  skip.onclick = () => {
+    applyTaxonFromBrowser(LIFE_TAXON_ID, "All Life", "🌍");
+  };
+  body.appendChild(skip);
+
+  // Grid
+  const grid = document.createElement("div");
+  grid.className = "taxa-grid";
+  for (const g of TAXA_GROUPS) {
+    const tile = document.createElement("button");
+    tile.className = "taxa-tile";
+    tile.style.background = g.bg;
+    tile.innerHTML = `
+      ${g.img ? `<img class="tile-img" src="${g.img}" alt="${g.label}">` : ""}
+      <div class="tile-glow"></div>
+      <span class="tile-emoji">${g.emoji}</span>
+      <span class="tile-label">${g.label}</span>
+      <span class="tile-arrow">›</span>`;
+    tile.onclick = () => {
+      taxaBrowserGroup = g.id;
+      renderTaxaSubs(g);
+    };
+    grid.appendChild(tile);
+  }
+  body.appendChild(grid);
+}
+
+function renderTaxaSubs(group) {
+  document.getElementById("taxaTitle").textContent = `${group.emoji} ${group.label}`;
+  document.getElementById("taxaSubtitle").textContent = "Choose a focus or search all";
+  document.getElementById("taxaBack").classList.add("visible");
+  const body = document.getElementById("taxaBody");
+  body.innerHTML = "";
+  body.scrollTop = 0;
+
+  const list = document.createElement("div");
+  list.className = "taxa-sub-list";
+  const subs = TAXA_SUBS[group.id] || [];
+  subs.forEach((s, i) => {
+    const btn = document.createElement("button");
+    btn.className = "taxa-sub" + (i === 0 ? " primary" : "");
+    btn.innerHTML = `
+      <div class="sub-icon">${s.emoji}</div>
+      <div style="flex:1;min-width:0">
+        <div class="sub-label">${s.label}</div>
+        <div class="sub-desc">${s.desc}</div>
+      </div>
+      <span class="sub-arrow">›</span>`;
+    btn.onclick = () => {
+      applyTaxonFromBrowser(s.taxonId, s.label, s.emoji);
+    };
+    list.appendChild(btn);
+  });
+  body.appendChild(list);
+}
+
+function applyTaxonFromBrowser(taxonId, name, emoji) {
+  // Save to localStorage
+  try {
+    localStorage.setItem("nfm_taxon", JSON.stringify({ id: taxonId, name, emoji }));
+  } catch(e) {}
+
+  // Apply to search state
+  if (taxonId === LIFE_TAXON_ID) {
+    selectedTaxonId = null;
+    selectedTaxonName = "";
+  } else {
+    selectedTaxonId = taxonId;
+    selectedTaxonName = name;
+  }
+
+  // Update the sheet's taxon display
+  updateTaxonDisplay(taxonId, name, emoji);
+
+  closeTaxaBrowser();
+  openSheet();
+}
+
+function updateTaxonDisplay(taxonId, name, emoji) {
+  const el = document.getElementById("selectedTaxon");
+  if (taxonId === LIFE_TAXON_ID) {
+    el.style.display = "flex";
+    el.className = "badge badge-taxon";
+    el.innerHTML = `<span>🌍 All Life</span><button class="badge-close" onclick="openTaxaBrowser()" title="Change">✎</button>`;
+  } else {
+    el.style.display = "flex";
+    el.className = "badge badge-taxon";
+    el.innerHTML = `<span>${emoji} ${name}</span><button class="badge-close" onclick="openTaxaBrowser()" title="Change">✎</button>`;
+  }
+}
+
+function loadSavedTaxon() {
+  try {
+    const saved = localStorage.getItem("nfm_taxon");
+    if (saved) {
+      const t = JSON.parse(saved);
+      if (t.id === LIFE_TAXON_ID) {
+        selectedTaxonId = null;
+        selectedTaxonName = "";
+      } else {
+        selectedTaxonId = t.id;
+        selectedTaxonName = t.name;
+      }
+      updateTaxonDisplay(t.id, t.name, t.emoji);
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
 
 // ── helpers ──
 async function inatGet(ep,params={}){
@@ -486,8 +751,15 @@ function clearPlace(){selectedPlaceId=null;selectedPlaceName="";document.getElem
 let txT;
 document.getElementById("taxonSearch").addEventListener("input",e=>{clearTimeout(txT);const q=e.target.value.trim();if(q.length<2){document.getElementById("taxonResults").classList.remove("visible");return}txT=setTimeout(()=>doST(q),300)});
 async function doST(q){try{const d=await inatGet("/taxa/autocomplete",{q,per_page:8});const l=document.getElementById("taxonResults");l.innerHTML="";(d.results||[]).forEach(t=>{const th=t.default_photo?.square_url||"";const div=document.createElement("div");div.className="ac-item";div.innerHTML=`${th?`<img src="${th}">`:"" }<div><div class="ac-name">${t.preferred_common_name||t.name}</div><div class="ac-sub">${t.name} · ${t.rank}</div></div>`;div.onclick=()=>selectTaxon(t);l.appendChild(div)});l.classList.toggle("visible",(d.results||[]).length>0)}catch(e){console.error(e)}}
-function selectTaxon(t){selectedTaxonId=t.id;selectedTaxonName=t.preferred_common_name||t.name;document.getElementById("taxonSearch").value="";document.getElementById("taxonResults").classList.remove("visible");const el=document.getElementById("selectedTaxon");el.style.display="flex";el.className="badge badge-taxon";const th=t.default_photo?.square_url||"";el.innerHTML=`${th?`<img src="${th}">`:"" }<span>${selectedTaxonName} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="clearTaxon()">✕</button>`}
-function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElementById("selectedTaxon").style.display="none"}
+function selectTaxon(t){
+  selectedTaxonId=t.id;selectedTaxonName=t.preferred_common_name||t.name;
+  document.getElementById("taxonSearch").value="";document.getElementById("taxonResults").classList.remove("visible");
+  const emoji=TE[t.iconic_taxon_name]||"🔍";
+  const el=document.getElementById("selectedTaxon");el.style.display="flex";el.className="badge badge-taxon";
+  el.innerHTML=`<span>${emoji} ${selectedTaxonName} <i style="color:var(--ink-light)">(${t.name})</i></span><button class="badge-close" onclick="openTaxaBrowser()" title="Change">✎</button>`;
+  try{localStorage.setItem("nfm_taxon",JSON.stringify({id:t.id,name:selectedTaxonName,emoji}))}catch(e){}
+}
+function clearTaxon(){selectedTaxonId=null;selectedTaxonName="";document.getElementById("selectedTaxon").style.display="none";try{localStorage.removeItem("nfm_taxon")}catch(e){}}
 
 // ── SEARCH ──
 async function runSearch(){
@@ -604,7 +876,12 @@ document.addEventListener("click",e=>{
   if(!e.target.closest("#taxonSearch")&&!e.target.closest("#taxonResults"))document.getElementById("taxonResults").classList.remove("visible");
 });
 try{const su=localStorage.getItem("nfm_username");if(su)document.getElementById("username").value=su}catch(e){}
-setTimeout(openSheet,400);
+// If taxon is saved, go straight to sheet; otherwise show taxa browser
+if (loadSavedTaxon()) {
+  setTimeout(openSheet, 400);
+} else {
+  setTimeout(openTaxaBrowser, 400);
+}
 </script>
 </body>
 </html>
