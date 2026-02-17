@@ -190,6 +190,38 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
   .sheet{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;max-height:calc(100dvh - 32px)}
   .results-bar{left:auto;right:16px;bottom:16px;width:var(--panel-max);border-radius:16px;overflow:hidden}
 }
+
+/* Dark mode */
+body.dark{--parchment:#1a1a2e;--ink:#e0ddd5;--ink-light:#9a9590;--moss:#5a9e6f;--moss-dark:#4a8a5f;--moss-pale:rgba(90,158,111,0.15);--amber:#d4944a;--amber-pale:rgba(212,148,74,0.12);--clay:#d07050;--shadow:rgba(0,0,0,0.35)}
+body.dark .field input,body.dark .field select{background:#252540;border-color:#3a3a55;color:var(--ink)}
+body.dark .field select{background-color:#252540}
+body.dark .autocomplete-list{background:#252540;border-color:#3a3a55}
+body.dark .ac-item{border-bottom-color:#3a3a55}
+body.dark .ac-item:hover{background:var(--moss-pale)}
+body.dark .mode-toggle{border-color:#3a3a55}
+body.dark .mode-toggle button{background:#252540;color:var(--ink-light)}
+body.dark .mode-toggle button.active{background:var(--moss);color:#fff}
+body.dark .loc-btn{background:#252540;border-color:#3a3a55}
+body.dark .taxa-sub{border-color:#3a3a55;background:#252540}
+body.dark .taxa-sub:not(.primary) .sub-icon{background:#1a1a2e}
+body.dark .taxa-sub:hover{border-color:var(--moss);background:var(--moss-pale)}
+body.dark .taxa-skip{border-color:#3a3a55}
+body.dark .nearby-chip{background:#252540;border-color:#3a3a55}
+body.dark .species-card:hover{background:var(--amber-pale)}
+body.dark .results-filters{background:#252540;border-bottom-color:#3a3a55}
+body.dark .season-toggle{border-color:#3a3a55;background:#252540}
+body.dark .loading-overlay{background:rgba(26,26,46,0.9)}
+body.dark .leaflet-popup-content-wrapper{background:#252540!important;color:var(--ink)!important}
+body.dark .leaflet-popup-tip{border-top-color:#252540!important}
+body.dark .obs-popup .obs-meta{color:var(--ink)}
+body.dark .browse-taxon-btn{background:#252540;border-color:#3a3a55}
+body.dark .badge-place{background:var(--moss-pale)}
+body.dark .badge-taxon{background:var(--amber-pale)}
+body.dark .top-bar{background:linear-gradient(to bottom,var(--parchment) 60%,transparent)}
+body.dark .logo{text-shadow:none}
+.theme-toggle{font-size:18px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);background:var(--parchment);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px var(--shadow);transition:all 0.15s}
+.theme-toggle:hover{background:var(--ink);color:var(--parchment)}
+body.dark .theme-toggle{border-color:#3a3a55}
 </style>
 </head>
 <body>
@@ -198,6 +230,7 @@ body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--parchmen
 <div class="top-bar">
   <div class="logo">New for <span>Me</span></div>
   <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="Toggle dark mode">🌙</button>
   <button class="pill-btn" onclick="openSheet()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0z"/></svg>
     Search
@@ -653,7 +686,23 @@ function showPlaceBoundary(p){if(placeLayer){map.removeLayer(placeLayer);placeLa
 // ── MAP ──
 map=L.map("map",{center:[35.7796,-78.6382],zoom:10,zoomControl:false});
 L.control.zoom({position:"topright"}).addTo(map);
-L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",{attribution:'Tiles &copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS, NGA',maxZoom:19}).addTo(map);
+
+// ── TILE LAYERS ──
+const lightTiles=L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",{attribution:'Tiles &copy; Esri &mdash; Sources: Esri, HERE, Garmin, USGS, NGA',maxZoom:19});
+const darkTiles=L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:'&copy; <a href="https://carto.com/">CARTO</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',maxZoom:20,subdomains:"abcd"});
+
+let isDark=false;
+function applyTheme(dark){
+  isDark=dark;
+  document.body.classList.toggle("dark",dark);
+  document.getElementById("themeToggle").textContent=dark?"☀️":"🌙";
+  if(dark){map.removeLayer(lightTiles);darkTiles.addTo(map)}
+  else{map.removeLayer(darkTiles);lightTiles.addTo(map)}
+  try{localStorage.setItem("nfm_dark",dark?"1":"0")}catch(e){}
+}
+function toggleDarkMode(){applyTheme(!isDark)}
+// Restore saved preference
+(function(){try{const s=localStorage.getItem("nfm_dark");applyTheme(s==="1")}catch(e){applyTheme(false)}})();
 obsCluster=L.markerClusterGroup({maxClusterRadius:45,spiderfyOnMaxZoom:true,showCoverageOnHover:false,
   iconCreateFunction:c=>{const n=c.getChildCount(),sz=n<20?32:n<100?38:44;return L.divIcon({html:`<div style="width:${sz}px;height:${sz}px;line-height:${sz}px;border-radius:50%;background:var(--amber);color:#fff;text-align:center;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3)">${n>999?Math.round(n/1000)+'k':n}</div>`,className:"",iconSize:[sz,sz]})}
 });
