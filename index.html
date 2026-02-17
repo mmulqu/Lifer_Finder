@@ -227,6 +227,12 @@ body.dark .logo{text-shadow:none}
 .theme-toggle{font-size:18px;width:36px;height:36px;border-radius:50%;border:1.5px solid var(--ink);background:var(--parchment);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px var(--shadow);transition:all 0.15s}
 .theme-toggle:hover{background:var(--ink);color:var(--parchment)}
 body.dark .theme-toggle{border-color:#3a3a55}
+
+/* User location blue glow */
+.user-loc{position:relative;width:18px;height:18px}
+.user-loc-dot{width:14px;height:14px;background:#2a7fff;border:2.5px solid #fff;border-radius:50%;position:absolute;top:2px;left:2px;z-index:2;box-shadow:0 0 6px rgba(42,127,255,0.6)}
+.user-loc-pulse{width:18px;height:18px;background:rgba(42,127,255,0.25);border-radius:50%;position:absolute;top:0;left:0;z-index:1;animation:locpulse 2s ease-out infinite}
+@keyframes locpulse{0%{transform:scale(1);opacity:1}100%{transform:scale(3.5);opacity:0}}
 </style>
 </head>
 <body>
@@ -980,6 +986,22 @@ document.addEventListener("click",e=>{
   if(!e.target.closest("#taxonSearch")&&!e.target.closest("#taxonResults"))document.getElementById("taxonResults").classList.remove("visible");
 });
 try{const su=localStorage.getItem("nfm_username");if(su)document.getElementById("username").value=su}catch(e){}
+// ── USER LOCATION BLUE DOT ──
+let userLocMarker=null,userLocWatchId=null;
+function showUserLocation(lat,lng){
+  const icon=L.divIcon({className:"",html:'<div class="user-loc"><div class="user-loc-pulse"></div><div class="user-loc-dot"></div></div>',iconSize:[18,18],iconAnchor:[9,9]});
+  if(userLocMarker){userLocMarker.setLatLng([lat,lng])}
+  else{userLocMarker=L.marker([lat,lng],{icon,interactive:false,zIndexOffset:1000}).addTo(map)}
+}
+function startUserLocationWatch(){
+  if(!navigator.geolocation)return;
+  // Get initial position
+  navigator.geolocation.getCurrentPosition(p=>showUserLocation(p.coords.latitude,p.coords.longitude),()=>{},{enableHighAccuracy:true,timeout:10000});
+  // Watch for updates
+  userLocWatchId=navigator.geolocation.watchPosition(p=>showUserLocation(p.coords.latitude,p.coords.longitude),()=>{},{enableHighAccuracy:true,maximumAge:15000,timeout:30000});
+}
+startUserLocationWatch();
+
 // If taxon is saved, go straight to sheet; otherwise show taxa browser
 if (loadSavedTaxon()) {
   setTimeout(openSheet, 400);
