@@ -327,7 +327,7 @@ body.dark .theme-toggle{border-color:#3a3a55}
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 const TREES_WORKER="https://inat-trees-worker.intrinsic3141.workers.dev";
-const INAT_PROXY="https://inat-api-proxy.intrinsic3141.workers.dev";
+const INAT_PROXY="https://api.inaturalist.org";
 const LIFE_TAXON_ID=48460;
 const MONTH_LABELS=["J","F","M","A","M","J","J","A","S","O","N","D"];
 const CUR_MONTH=new Date().getMonth(); // 0-11
@@ -556,11 +556,17 @@ function loadSavedTaxon() {
 }
 
 // ── helpers ──
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function inatGet(ep,params={}){
   const qs=new URLSearchParams(params).toString();
-  const r=await fetch(`${INAT_PROXY}/v1${ep}${qs?"?"+qs:""}`);
-  if(!r.ok) throw new Error(`iNat API ${r.status}`);
-  return r.json();
+  const url=`${INAT_PROXY}/v1${ep}${qs?"?"+qs:""}`;
+  for(let attempt=0,delay=2000;attempt<4;attempt++){
+    const r=await fetch(url);
+    if(r.status===429){await sleep(delay);delay*=2;continue;}
+    if(!r.ok) throw new Error(`iNat API ${r.status}`);
+    return r.json();
+  }
+  throw new Error("iNat API 429: rate limited, please try again shortly");
 }
 function getDateFilter(){const d=document.getElementById("timeFilter").value;if(!d)return null;const t=new Date();t.setDate(t.getDate()-parseInt(d));return t.toISOString().slice(0,10)}
 
@@ -582,6 +588,7 @@ async function fetchObservationsForTaxa(taxonIds,areaP,d1,cb){
   const allObs=[];const chunks=[];
   for(let i=0;i<taxonIds.length;i+=80)chunks.push(taxonIds.slice(i,i+80));
   for(let ci=0;ci<chunks.length;ci++){
+    if(ci>0)await sleep(300);
     let pg=1;while(pg<=3){
       const p={...areaP,taxon_id:chunks[ci].join(","),quality_grade:"research,needs_id",photos:"true",per_page:200,page:pg,order_by:"observed_on",order:"desc"};
       if(d1)p.d1=d1;
